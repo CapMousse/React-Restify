@@ -166,7 +166,7 @@ class Router extends EventEmitter
             }
         }
 
-        return $this->emit('NotFound', $this->_uri);
+        return $this->emit('NotFound', array($this->_uri));
     }
 
     /**
