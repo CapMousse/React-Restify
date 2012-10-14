@@ -13,13 +13,13 @@ class Server extends EventEmitter
      * Name of the server
      * @var string
      */
-    public static $name = "React-Restify Server";
+    public $name = "React/Restify";
 
     /**
      * Version of the API
      * @var null
      */
-    public static $version = null;
+    public $version = null;
 
     /**
      * @var \React\Restify\Router
@@ -32,12 +32,12 @@ class Server extends EventEmitter
      */
     public function __construct($name = null, $version = null)
     {
-        if (null != $name) {
-            self::$name = $name;
+        if (null !== $name) {
+            $this->name = $name;
         }
 
-        if (null != $version) {
-            self::$version = $version;
+        if (null !== $version) {
+            $this->version = $version;
         }
 
         $this->router = new Router();
@@ -53,7 +53,7 @@ class Server extends EventEmitter
     {
         $start = microtime(true);
 
-        $response = new Response($HttpResponse);
+        $response = new Response($HttpResponse, $this->name, $this->version);
 
         $this->emit('parseRequest', array($HttpRequest, $response));
 

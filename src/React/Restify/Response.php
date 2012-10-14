@@ -11,6 +11,9 @@ class Response
      */
     private $httpResponse;
 
+    private $server;
+    private $version;
+
     /**
      * Status code of the response
      * @var int
@@ -47,9 +50,11 @@ class Response
      * @param \React\Http\Response $response
      *
      */
-    public function __construct(HttpResponse $response)
+    public function __construct(HttpResponse $response, $server = null, $version = null)
     {
         $this->httpResponse = $response;
+        $this->server = $server;
+        $this->version = $version;
     }
 
     /**
@@ -154,10 +159,13 @@ class Response
 
         if (!isset($this->headers["Content-Length"])) {
             $this->addHeader("Content-Length", $this->contentLength);
-            $this->addHeader("Server", Server::$name);
 
-            if (Server::$version !== null) {
-                $this->addHeader("Server-Version", Server::$version);
+            if (null !== $this->server) {
+                $this->addHeader("Server", $this->server);
+            }
+
+            if (null !== $this->version) {
+                $this->addHeader("Server-Version", $this->version);
             }
 
             if (!isset($this->headers["Content-Type"])) {
