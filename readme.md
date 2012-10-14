@@ -16,7 +16,7 @@ In your `composer.json`
 
 ##Create server
 ```php
-include('vendor/autoload.php');
+require 'vendor/autoload.php';
 
 $server = new React\Restify\Server("MyAPP", "0.0.1");
 
