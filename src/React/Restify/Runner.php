@@ -21,8 +21,6 @@ class Runner
         $socket = new SocketServer($loop);
         $http = new HttpServer($socket, $loop);
 
-        $this->app->bindRoutes();
-
         $http->on('request', $this->app);
         echo("Server running on {$host}:{$port}\n");
 

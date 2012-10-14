@@ -27,12 +27,6 @@ class Server extends EventEmitter
     private $router;
 
     /**
-     * The defined routes
-     * @var array
-     */
-    private $routes = array();
-
-    /**
      * @param null $name
      * @param null $version
      */
@@ -47,11 +41,6 @@ class Server extends EventEmitter
         }
 
         $this->router = new Router();
-    }
-
-    public function bindRoutes()
-    {
-        $this->router->addRoutes($this->routes);
     }
 
     /**
@@ -155,17 +144,16 @@ class Server extends EventEmitter
      */
     public function addRoute($type, $route, $callback)
     {
-        if(!isset($this->routes[$route])) {
-            $this->routes[$route] = array();
-        }
-
-        $this->routes[$route][] = function(HttpRequest $request, Response $response, $args) use ($callback, $type) {
+        $routes = array();
+        $routes[$route][] = function(HttpRequest $request, Response $response, $args) use ($callback, $type) {
             if (strtolower($request->getMethod()) !== $type) {
                 return;
             }
 
             call_user_func_array($callback, array($request, $response, $args));
         };
+
+        $this->router->addRoutes($routes);
 
         return $this;
     }
