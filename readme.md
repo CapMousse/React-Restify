@@ -10,7 +10,6 @@ In your `composer.json`
 
     "require"       : {
         "php": ">=5.3.2",
-        "react/react":  "dev-master",
         "react/restify": "dev-master"
     },
 
