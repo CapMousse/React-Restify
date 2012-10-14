@@ -9,37 +9,37 @@ class Response
     /**
      * @var \React\Http\Response
      */
-    var $httpResponse;
+    private $httpResponse;
 
     /**
      * Status code of the response
      * @var int
      */
-    var $status = 200;
+    private $status = 200;
 
     /**
      * Array of headers to send
      * @var array
      */
-    var $headers = array();
+    private $headers = array();
 
     /**
      * The content-length
      * @var int
      */
-    var $contentLength = 0;
+    private $contentLength = 0;
 
     /**
      * Data to send
      * @var string
      */
-    var $data;
+    private $data;
 
     /**
      * Check if headers are already sent
      * @var bool
      */
-    var $headersSent = false;
+    private $headersSent = false;
 
     /**
      * Create a new Restify/Response object
@@ -47,7 +47,7 @@ class Response
      * @param \React\Http\Response $response
      *
      */
-    public function __construct (HttpResponse $response)
+    public function __construct(HttpResponse $response)
     {
         $this->httpResponse = $response;
     }
@@ -74,7 +74,7 @@ class Response
      *
      * @return \React\Restify\Response
      */
-    public function setStatus ($code)
+    public function setStatus($code)
     {
         $this->status = $code;
 
@@ -104,7 +104,7 @@ class Response
      *
      * @param string $data
      */
-    public function write ($data)
+    public function write($data)
     {
         $this->contentLength += strlen($data);
         $this->data .= $data;
@@ -148,7 +148,7 @@ class Response
      */
     public function sendHeaders()
     {
-        if ($this->headersSent){
+        if ($this->headersSent) {
             return;
         }
 
