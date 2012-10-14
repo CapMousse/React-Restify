@@ -2,7 +2,7 @@
     "name"          : "react/restify",
     "description"   : "Create RESTfull API with ReactPHP",
     "keywords"      : [ "react", "rest", "restify" ],
-    "license"       : "BSD",
+    "license"       : "MIT",
     "authors"       : [
         {
             "name"      : "Jérémy Barbe",
