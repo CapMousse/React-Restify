@@ -1,0 +1,23 @@
+{
+    "name"          : "react/restify",
+    "description"   : "Create RESTfull API with ReactPHP",
+    "keywords"      : [ "react", "rest", "restify" ],
+    "license"       : "BSD",
+    "authors"       : [
+        {
+            "name"      : "Jérémy Barbe",
+            "email"     : "contact@jeremybarbe.fr",
+            "homepage"  : "http://www.shwaark.com",
+            "role"      : "developer"
+        }
+    ],
+    "require"       : {
+        "php": ">=5.3.2",
+        "react/react":  "dev-master"
+    },
+    "autoload"      : {
+        "psr-0": {
+            "React\\Restify"       : "src"
+        }
+    }
+}
