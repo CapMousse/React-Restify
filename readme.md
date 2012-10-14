@@ -24,7 +24,8 @@ $server->get('/hello/[name]:any', function ($request, $response, $args) {
     $response->write("Hello ".$args['name']);
 });
 
-$server->listen("1337");
+$runner = new React\Restify\Runner($server);
+$runner->listen(1337);
 ```
 
 Licence

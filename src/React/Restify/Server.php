@@ -2,9 +2,6 @@
 
 namespace React\Restify;
 
-use React\EventLoop\Factory;
-use React\Socket\Server as SocketServer;
-use React\Http\Server as HttpServer;
 use React\Http\Request as HttpRequest;
 use React\Http\Response as HttpResponse;
 
@@ -23,21 +20,6 @@ class Server extends EventEmitter
      * @var null
      */
     public static $version = null;
-
-    /**
-     * @var \React\EventLoop\Factory
-     */
-    private $loop;
-
-    /**
-     * @var \React\Socket\Server
-     */
-    private $socket;
-
-    /**
-     * @var \React\Http\Server
-     */
-    private $http;
 
     /**
      * @var \React\Restify\Router
@@ -64,28 +46,12 @@ class Server extends EventEmitter
             self::$version = $version;
         }
 
-
-        $this->loop = Factory::create();
-        $this->socket = new SocketServer($this->loop);
-        $this->http = new HttpServer($this->socket, $this->loop);
         $this->router = new Router();
     }
 
-    /**
-     * Launch the server at the given port and host
-     *
-     * @param string $port
-     * @param string $host
-     */
-    public function listen($port, $host = '127.0.0.1')
+    public function bindRoutes()
     {
         $this->router->addRoutes($this->routes);
-
-        $this->http->on('request', array($this, 'parseRequest'));
-        echo("Server running on {$host}:{$port}\n");
-
-        $this->socket->listen($port, $host);
-        $this->loop->run();
     }
 
     /**
@@ -94,7 +60,7 @@ class Server extends EventEmitter
      * @param \React\Http\Request $HttpRequest
      * @param \React\Http\Response $HttpResponse
      */
-    public function parseRequest(HttpRequest $HttpRequest, HttpResponse $HttpResponse)
+    public function __invoke(HttpRequest $HttpRequest, HttpResponse $HttpResponse)
     {
         $start = microtime(true);
 
