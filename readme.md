@@ -1,8 +1,8 @@
 #React-Restify
 
-> RESTfull api made easy for [ReactPHP](http://nodephp.org/), seriously.
+> RESTful api made easy for [ReactPHP](http://nodephp.org/), seriously.
 
-React-Restify is a small framework inspired from [Node-Restify](http://mcavage.github.com/node-restify/) builded to easily create RESTfull api.
+React-Restify is a small framework inspired from [Node-Restify](http://mcavage.github.com/node-restify/) builded to easily create RESTful api.
 
 ##Instalation
 In your `composer.json`
