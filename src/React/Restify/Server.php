@@ -2,9 +2,6 @@
 
 namespace React\Restify;
 
-use React\EventLoop\Factory;
-use React\Socket\Server as SocketServer;
-use React\Http\Server as HttpServer;
 use React\Http\Request as HttpRequest;
 use React\Http\Response as HttpResponse;
 
@@ -16,28 +13,13 @@ class Server extends EventEmitter
      * Name of the server
      * @var string
      */
-    public static $name = "React-Restify Server";
+    public $name = "React/Restify";
 
     /**
      * Version of the API
      * @var null
      */
-    public static $version = null;
-
-    /**
-     * @var \React\EventLoop\Factory
-     */
-    private $loop;
-
-    /**
-     * @var \React\Socket\Server
-     */
-    private $socket;
-
-    /**
-     * @var \React\Http\Server
-     */
-    private $http;
+    public $version = null;
 
     /**
      * @var \React\Restify\Router
@@ -45,47 +27,20 @@ class Server extends EventEmitter
     private $router;
 
     /**
-     * The defined routes
-     * @var array
-     */
-    private $routes = array();
-
-    /**
      * @param null $name
      * @param null $version
      */
     public function __construct($name = null, $version = null)
     {
-        if (null != $name) {
-            self::$name = $name;
+        if (null !== $name) {
+            $this->name = $name;
         }
 
-        if (null != $version) {
-            self::$version = $version;
+        if (null !== $version) {
+            $this->version = $version;
         }
 
-
-        $this->loop = Factory::create();
-        $this->socket = new SocketServer($this->loop);
-        $this->http = new HttpServer($this->socket, $this->loop);
         $this->router = new Router();
-    }
-
-    /**
-     * Launch the server at the given port and host
-     *
-     * @param string $port
-     * @param string $host
-     */
-    public function listen($port, $host = '127.0.0.1')
-    {
-        $this->router->addRoutes($this->routes);
-
-        $this->http->on('request', array($this, 'parseRequest'));
-        echo("Server running on {$host}:{$port}\n");
-
-        $this->socket->listen($port, $host);
-        $this->loop->run();
     }
 
     /**
@@ -94,11 +49,11 @@ class Server extends EventEmitter
      * @param \React\Http\Request $HttpRequest
      * @param \React\Http\Response $HttpResponse
      */
-    public function parseRequest(HttpRequest $HttpRequest, HttpResponse $HttpResponse)
+    public function __invoke(HttpRequest $HttpRequest, HttpResponse $HttpResponse)
     {
         $start = microtime(true);
 
-        $response = new Response($HttpResponse);
+        $response = new Response($HttpResponse, $this->name, $this->version);
 
         $this->emit('parseRequest', array($HttpRequest, $response));
 
@@ -189,17 +144,16 @@ class Server extends EventEmitter
      */
     public function addRoute($type, $route, $callback)
     {
-        if(!isset($this->routes[$route])) {
-            $this->routes[$route] = array();
-        }
-
-        $this->routes[$route][] = function(HttpRequest $request, Response $response, $args) use ($callback, $type) {
+        $routes = array();
+        $routes[$route][] = function(HttpRequest $request, Response $response, $args) use ($callback, $type) {
             if (strtolower($request->getMethod()) !== $type) {
                 return;
             }
 
             call_user_func_array($callback, array($request, $response, $args));
         };
+
+        $this->router->addRoutes($routes);
 
         return $this;
     }

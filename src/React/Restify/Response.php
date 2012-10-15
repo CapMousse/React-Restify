@@ -9,37 +9,40 @@ class Response
     /**
      * @var \React\Http\Response
      */
-    var $httpResponse;
+    private $httpResponse;
+
+    private $server;
+    private $version;
 
     /**
      * Status code of the response
      * @var int
      */
-    var $status = 200;
+    private $status = 200;
 
     /**
      * Array of headers to send
      * @var array
      */
-    var $headers = array();
+    private $headers = array();
 
     /**
      * The content-length
      * @var int
      */
-    var $contentLength = 0;
+    private $contentLength = 0;
 
     /**
      * Data to send
      * @var string
      */
-    var $data;
+    private $data;
 
     /**
      * Check if headers are already sent
      * @var bool
      */
-    var $headersSent = false;
+    private $headersSent = false;
 
     /**
      * Create a new Restify/Response object
@@ -47,9 +50,11 @@ class Response
      * @param \React\Http\Response $response
      *
      */
-    public function __construct (HttpResponse $response)
+    public function __construct(HttpResponse $response, $server = null, $version = null)
     {
         $this->httpResponse = $response;
+        $this->server = $server;
+        $this->version = $version;
     }
 
     /**
@@ -74,7 +79,7 @@ class Response
      *
      * @return \React\Restify\Response
      */
-    public function setStatus ($code)
+    public function setStatus($code)
     {
         $this->status = $code;
 
@@ -104,7 +109,7 @@ class Response
      *
      * @param string $data
      */
-    public function write ($data)
+    public function write($data)
     {
         $this->contentLength += strlen($data);
         $this->data .= $data;
@@ -148,16 +153,19 @@ class Response
      */
     public function sendHeaders()
     {
-        if ($this->headersSent){
+        if ($this->headersSent) {
             return;
         }
 
         if (!isset($this->headers["Content-Length"])) {
             $this->addHeader("Content-Length", $this->contentLength);
-            $this->addHeader("Server", Server::$name);
 
-            if (Server::$version !== null) {
-                $this->addHeader("Server-Version", Server::$version);
+            if (null !== $this->server) {
+                $this->addHeader("Server", $this->server);
+            }
+
+            if (null !== $this->version) {
+                $this->addHeader("Server-Version", $this->version);
             }
 
             if (!isset($this->headers["Content-Type"])) {

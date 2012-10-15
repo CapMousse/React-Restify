@@ -1,8 +1,8 @@
 #React-Restify
 
-> RESTfull api made easy for [ReactPHP](http://nodephp.org/), seriously.
+> RESTful api made easy for [ReactPHP](http://nodephp.org/), seriously.
 
-React-Restify is a small framework inspired from [Node-Restify](http://mcavage.github.com/node-restify/) builded to easily create RESTfull api.
+React-Restify is a small framework inspired from [Node-Restify](http://mcavage.github.com/node-restify/) builded to easily create RESTful api.
 
 ##Instalation
 In your `composer.json`
@@ -10,14 +10,13 @@ In your `composer.json`
 
     "require"       : {
         "php": ">=5.3.2",
-        "react/react":  "dev-master",
         "react/restify": "dev-master"
     },
 
 
 ##Create server
 ```php
-include('vendor/autoload.php');
+require 'vendor/autoload.php';
 
 $server = new React\Restify\Server("MyAPP", "0.0.1");
 
@@ -25,7 +24,8 @@ $server->get('/hello/[name]:any', function ($request, $response, $args) {
     $response->write("Hello ".$args['name']);
 });
 
-$server->listen("1337");
+$runner = new React\Restify\Runner($server);
+$runner->listen(1337);
 ```
 
 Licence
