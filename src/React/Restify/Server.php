@@ -26,6 +26,8 @@ class Server extends EventEmitter
      */
     private $router;
 
+    private $allowOrigin = "*";
+
     /**
      * @param null $name
      * @param null $version
@@ -69,6 +71,8 @@ class Server extends EventEmitter
 
         $response->addHeader("X-Response-Time", $end);
         $response->addHeader("Date", date(DATE_RFC822));
+        $response->addHeader("Access-Control-Request-Method", "POST, GET, PUT, DEL");
+        $response->addHeader("Access-Control-Allow-Origin", $this->allowOrigin);
 
         $response->end();
     }
@@ -83,7 +87,7 @@ class Server extends EventEmitter
      */
     public function post($route, $callback)
     {
-        $this->addRoute("post", $route, $callback);
+        $this->addRoute("POST", $route, $callback);
 
         return $this;
     }
@@ -98,7 +102,7 @@ class Server extends EventEmitter
      */
     public function get($route, $callback)
     {
-        $this->addRoute("get", $route, $callback);
+        $this->addRoute("GET", $route, $callback);
 
         return $this;
     }
@@ -113,7 +117,7 @@ class Server extends EventEmitter
      */
     public function del($route, $callback)
     {
-        $this->addRoute("del", $route, $callback);
+        $this->addRoute("DEL", $route, $callback);
 
         return $this;
     }
@@ -128,7 +132,7 @@ class Server extends EventEmitter
      */
     public function put($route, $callback)
     {
-        $this->addRoute("put", $route, $callback);
+        $this->addRoute("PUT", $route, $callback);
 
         return $this;
     }
@@ -144,17 +148,43 @@ class Server extends EventEmitter
      */
     public function addRoute($type, $route, $callback)
     {
-        $routes = array();
-        $routes[$route][] = function(HttpRequest $request, Response $response, $args) use ($callback, $type) {
-            if (strtolower($request->getMethod()) !== $type) {
+        $routeCallback = function(HttpRequest $request, Response $response, $args) use ($callback, $type) {
+            $method = strtoupper($request->getMethod());
+
+            if ($method !== $type) {
                 return;
             }
 
-            call_user_func_array($callback, array($request, $response, $args));
+            if (in_array($method, array('PUT', 'POST'))) {
+                $dataResult = "";
+
+                $request->on('data', function($data) use (&$dataResult) {
+                    $dataResult .= $data;
+                });
+
+                $request->on('close', function() use ($callback, &$request, &$response, $args, &$dataResult){
+                    parse_str($dataResult, $data);
+                    $args = array_merge($args, $data);
+                    call_user_func_array($callback, array($request, $response, $args));
+                });
+            } else {
+                call_user_func_array($callback, array($request, $response, $args));
+            }
+
         };
 
-        $this->router->addRoutes($routes);
+        $this->router->addRoute($route, $routeCallback);
 
         return $this;
+    }
+
+    /**
+     * The the Access-Control-Allow-Origin header
+     *
+     * @param string $origin
+     */
+    public function setAccessControlAllowOrigin($origin)
+    {
+        $this->allowOrigin = $origin;
     }
 }

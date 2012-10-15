@@ -28,6 +28,9 @@ $runner = new React\Restify\Runner($server);
 $runner->listen(1337);
 ```
 
+### Infos
+For now `PUT` and `POST` rules don't work because of beaviors of `ReactPHP`. It will be fixed soon.
+
 Licence
 ---
 

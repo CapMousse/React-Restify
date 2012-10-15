@@ -85,6 +85,21 @@ class Router extends EventEmitter
     }
 
     /**
+     * Add a new route
+     *
+     * @param string $route    uri to catch
+     * @param mixed  $callback code to execute
+     */
+    public function addRoute($route, $callback)
+    {
+        if (!isset($this->routes[$route])) {
+           $this->routes[$route] = array();
+        }
+
+        $this->routes[$route][] = $callback;
+    }
+
+    /**
      * Launch the route parsing
      *
      * @param \React\Http\Request     $request
@@ -101,11 +116,6 @@ class Router extends EventEmitter
         if (isset($this->routes['/'])) {
             $this->_default = $this->routes['/'];
             unset($this->routes['/']);
-        }
-
-        if (isset($this->routes['error'])) {
-            $this->_error = $this->routes['error'];
-            unset($this->routes['error']);
         }
 
         $this->parseRoutes();
@@ -164,6 +174,10 @@ class Router extends EventEmitter
 
                 return $this->launchRoute($this->_parsed_routes[$route], $request, $response, $method_args);
             }
+        }
+
+        if ($this->_uri === "/" && $this->_default) {
+            return $this->launchRoute($this->_default, $request, $response);
         }
 
         return $this->emit('NotFound', array($this->_uri));
