@@ -1,6 +1,6 @@
 <?php
 
-namespace React\Restify;
+namespace CapMousse\ReactRestify;
 
 use Evenement\EventEmitter;
 use React\Http\Request;

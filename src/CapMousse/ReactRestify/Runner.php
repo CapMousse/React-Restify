@@ -1,6 +1,6 @@
 <?php
 
-namespace React\Restify;
+namespace CapMousse\ReactRestify;
 
 use React\EventLoop\Factory;
 use React\Socket\Server as SocketServer;
