@@ -158,11 +158,13 @@ class Server extends EventEmitter
             if (in_array($method, array('PUT', 'POST'))) {
                 $dataResult = "";
 
-                $request->on('data', function($data) use (&$dataResult) {
+                //Get data chunck by chunk
+                $request->on('data', function($data) use (&$dataResult, &$request) {
                     $dataResult .= $data;
                 });
 
-                $request->on('close', function() use ($callback, &$request, &$response, $args, &$dataResult){
+                //Wait request end to launch route
+                $request->on('end', function() use ($callback, &$request, &$response, $args, &$dataResult){
                     parse_str($dataResult, $data);
                     $args = array_merge($args, $data);
                     call_user_func_array($callback, array($request, $response, $args));

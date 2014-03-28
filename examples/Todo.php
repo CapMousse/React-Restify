@@ -2,27 +2,30 @@
 
 require '../vendor/autoload.php';
 
-$server = new React\Restify\Server("SmallTodoServer", "0.0.0.1");
+$server = new CapMousse\ReactRestify\Server("SmallTodoServer", "0.0.0.1");
 
 $todoList = array(
     array("name" => "Build a todo list example", "value" => "done")
 );
 
+//List all todo
 $server->get('/', function ($request, $response, $args) use (&$todoList) {
     $response->writeJson((object)$todoList);
 });
 
+//Create a new todo
 $server->post('/', function ($request, $response, $args) use (&$todoList) {
     if (!isset($args['name'])) {
         return $response->setStatus(500);
     }
 
-    $todoList[] = array($args['name'] => false);
+    $todoList[] = ["name" => $args['name'], "value" => "waiting"];
     $id = count($todoList)-1;
 
     $response->writeJson((object)array("id" => $id));
 });
 
+//Get a single todo
 $server->get('/todo/[id]:num', function ($request, $response, $args) use (&$todoList) {
     if (!isset($todoList[$args['id']])) {
         return $response->setStatus(500);
@@ -30,6 +33,8 @@ $server->get('/todo/[id]:num', function ($request, $response, $args) use (&$todo
 
     $response->writeJson((object)$todoList[$args['id']]);
 });
+
+//Update a todo
 $server->put('/todo/[id]:num', function ($request, $response, $args) use (&$todoList) {
     if (!isset($todoList[$args['id']]) || (!isset($args['name']) && !isset($args['value']))) {
         return $response->setStatus(500);
@@ -45,6 +50,8 @@ $server->put('/todo/[id]:num', function ($request, $response, $args) use (&$todo
 
     $response->writeJson((object)$todoList[$args['id']]);
 });
+
+//Delete a todo
 $server->del('/todo/[id]:num', function ($request, $response, $args) use (&$todoList) {
     if (!isset($todoList[$args['id']])) {
         return $response->setStatus(500);
@@ -53,5 +60,5 @@ $server->del('/todo/[id]:num', function ($request, $response, $args) use (&$todo
     unset($todoList[$args['id']]);
 });
 
-$runner = new React\Restify\Runner($server);
+$runner = new CapMousse\ReactRestify\Runner($server);
 $runner->listen("1337");
