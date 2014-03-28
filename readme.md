@@ -6,7 +6,7 @@
 In your `composer.json`
 
     "require"       : {
-        "react/restify": "dev-master"
+        "capmousse/react-restify": "dev-master"
     },
 
 
