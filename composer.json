@@ -12,12 +12,11 @@
         }
     ],
     "require"       : {
-        "php": ">=5.3.2",
-        "react/http":  "0.2.*"
+        "react/http":  "0.3.*"
     },
     "autoload"      : {
         "psr-0": {
-            "React\\Restify"       : "src"
+            "CapMousse\\ReactRestify"       : "src"
         }
     }
 }

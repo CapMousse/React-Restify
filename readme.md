@@ -2,23 +2,22 @@
 
 > RESTful api made easy for [ReactPHP](http://nodephp.org/), seriously.
 
-React-Restify is a small framework inspired from [Node-Restify](http://mcavage.github.com/node-restify/) builded to easily create RESTful api.
-
 ##Instalation
 In your `composer.json`
 
-
     "require"       : {
-        "php": ">=5.3.2",
         "react/restify": "dev-master"
     },
 
 
 ##Create server
+
+Here is an exemple of a simple HTTP server replying to all get call like `http://127.0.0.1:1337/hello/you`
+
 ```php
 require 'vendor/autoload.php';
 
-$server = new React\Restify\Server("MyAPP", "0.0.1");
+$server = new React\Restify\Server("MyAPP", "0.0.0.1");
 
 $server->get('/hello/[name]:any', function ($request, $response, $args) {
     $response->write("Hello ".$args['name']);
@@ -28,16 +27,14 @@ $runner = new React\Restify\Runner($server);
 $runner->listen(1337);
 ```
 
-### Infos
-For now `PUT` and `POST` rules don't work because of beaviors of `ReactPHP`. It will be fixed soon.
+**More examples can be found on the example directory**
 
-Licence
----
+## Design goals
 
-The MIT License (MIT) Copyright (c) 2012 Jérémy Barbe
+*React-Restify* was primary made to build RESTful api easily. It can be used like *Silex*, but without the framework part.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+Next part will be to support Sockets, Upgrade Requests... to create a real time API server.
 
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+##Licence
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+MIT, see LICENCE file
