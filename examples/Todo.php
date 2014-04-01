@@ -16,8 +16,9 @@ $server->get('/', function ($request, $response, $next) use (&$todoList) {
 
 //Create a new todo
 $server->post('/', function ($request, $response, $next) use (&$todoList) {
-    if (!isset($request->name)) {
-        return $response->setStatus(500);
+    if (!$request->name) {
+        $response->setStatus(500);
+        return $next();
     }
 
     $todoList[] = ["name" => $request->name, "value" => "waiting"];
@@ -30,7 +31,8 @@ $server->post('/', function ($request, $response, $next) use (&$todoList) {
 //Get a single todo
 $server->get('/todo/{id}', function ($request, $response, $next) use (&$todoList) {
     if (!isset($todoList[$request->id])) {
-        return $response->setStatus(500);
+        $response->setStatus(500);
+        return $next();
     }
 
     $response->writeJson((object)$todoList[$request->id]);
@@ -40,7 +42,8 @@ $server->get('/todo/{id}', function ($request, $response, $next) use (&$todoList
 //Update a todo
 $server->put('/todo/{id}', function ($request, $response, $next) use (&$todoList) {
     if (!isset($todoList[$request->id]) || (!$request->name && !$request->value)) {
-        return $response->setStatus(500);
+        $response->setStatus(500);
+        $next();
     }
 
     if ($request->name) {
@@ -51,17 +54,19 @@ $server->put('/todo/{id}', function ($request, $response, $next) use (&$todoList
         $todoList[$request->id]["value"] = $request->value;
     }
 
-    $response->writeJson((object)$todoList[$requests->id]);
+    $response->writeJson((object)$todoList[$request->id]);
     $next();
 });
 
 //Delete a todo
 $server->del('/todo/{id}', function ($request, $response, $next) use (&$todoList) {
     if (!isset($todoList[$request->id])) {
-        return $response->setStatus(500);
+        $response->setStatus(500);
+        $next();
     }
 
     unset($todoList[$request->id]);
+    $next();
 });
 
 $runner = new CapMousse\ReactRestify\Runner($server);

@@ -126,7 +126,7 @@ class Router extends EventEmitter
             }
         }
 
-        return $this->emit('NotFound', array($this->uri));
+        return $this->emit('NotFound', array($this->uri, $next));
     }
 
     /**
@@ -150,17 +150,25 @@ class Router extends EventEmitter
 
         if (in_array($route->method, array('PUT', 'POST'))) {
             $dataResult = "";
+            $headers = $request->httpRequest->getHeaders();
 
             //Get data chunck by chunk
-            $request->httpRequest->on('data', function($data) use (&$dataResult) {
+            $request->httpRequest->on('data', function($data) use ($headers, &$request, &$dataResult) {
                 $dataResult .= $data;
+
+                if (isset($headers["Content-Length"])) {
+                    if(strlen($dataResult) == $headers["Content-Length"]) {
+                        $request->httpRequest->close();
+                    }
+                } else {
+                    $request->httpRequest->close();
+                }
             });
 
             //Wait request end to launch route
             $request->httpRequest->on('end', function() use ($action, $request, $response, $next, &$dataResult){
                 parse_str($dataResult, $data);
                 $request->setData($data);
-                var_dump($data);
                 call_user_func_array($action, array($request, $response, $next));
             });
         } else {

@@ -61,7 +61,7 @@ class Server extends EventEmitter
         $this->emit('parseRequest', array($HttpRequest, $response));
 
         try{
-            $this->router->launch($request, $response, function() use ($request, $response, $start){
+            $this->router->launch($request, $response, function() use (&$request, &$response, $start){
                 $end = microtime(true) - $start;
 
                 $response->addHeader("X-Response-Time", $end);

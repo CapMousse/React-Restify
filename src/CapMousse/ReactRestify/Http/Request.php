@@ -3,11 +3,12 @@
 namespace CapMousse\ReactRestify\Http;
 
 use React\Http\Request as ReactHttpRequest;
+use Evenement\EventEmitter;
 
-class Request
+class Request extends EventEmitter
 {
     public $httpRequest;
-    private $data;
+    private $data = [];
 
     public function __construct(ReactHttpRequest $httpRequest)
     {
@@ -16,7 +17,7 @@ class Request
 
     public function setData($data)
     {
-        $this->data = array_merge($data);
+        $this->data = array_merge($data, $this->data);
     }
 
     public function getData()
