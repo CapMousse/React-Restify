@@ -59,7 +59,7 @@ $server->put('/todo/{id}', function ($request, $response, $next) use (&$todoList
 });
 
 //Delete a todo
-$server->del('/todo/{id}', function ($request, $response, $next) use (&$todoList) {
+$server->delete('/todo/{id}', function ($request, $response, $next) use (&$todoList) {
     if (!isset($todoList[$request->id])) {
         $response->setStatus(500);
         $next();
