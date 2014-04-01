@@ -116,9 +116,9 @@ class Server extends EventEmitter
      *
      * @return Server
      */
-    public function del($route, $callback)
+    public function delete($route, $callback)
     {
-        $this->router->addRoute("DEL", $route, $callback);
+        $this->router->addRoute("DELETE", $route, $callback);
 
         return $this;
     }
