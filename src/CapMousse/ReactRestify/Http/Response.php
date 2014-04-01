@@ -1,6 +1,6 @@
 <?php
 
-namespace CapMousse\ReactRestify;
+namespace CapMousse\ReactRestify\Http;
 
 use React\Http\Response as HttpResponse;
 
