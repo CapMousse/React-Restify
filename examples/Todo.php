@@ -28,45 +28,48 @@ $server->post('/', function ($request, $response, $next) use (&$todoList) {
     $next();
 });
 
-//Get a single todo
-$server->get('/todo/{id}', function ($request, $response, $next) use (&$todoList) {
-    if (!isset($todoList[$request->id])) {
-        $response->setStatus(500);
-        return $next();
-    }
 
-    $response->writeJson((object)$todoList[$request->id]);
-    $next();
-});
+$server->group('todo', function($server) use (&$todoList){
+    //Get a single todo
+    $server->get('{id}', function ($request, $response, $next) use (&$todoList) {
+        if (!isset($todoList[$request->id])) {
+            $response->setStatus(500);
+            return $next();
+        }
 
-//Update a todo
-$server->put('/todo/{id}', function ($request, $response, $next) use (&$todoList) {
-    if (!isset($todoList[$request->id]) || (!$request->name && !$request->value)) {
-        $response->setStatus(500);
+        $response->writeJson((object)$todoList[$request->id]);
         $next();
-    }
+    });
 
-    if ($request->name) {
-        $todoList[$request->id]["name"] = $request->name;
-    }
+    //Update a todo
+    $server->put('{id}', function ($request, $response, $next) use (&$todoList) {
+        if (!isset($todoList[$request->id]) || (!$request->name && !$request->value)) {
+            $response->setStatus(500);
+            $next();
+        }
 
-    if ($request->value) {
-        $todoList[$request->id]["value"] = $request->value;
-    }
+        if ($request->name) {
+            $todoList[$request->id]["name"] = $request->name;
+        }
 
-    $response->writeJson((object)$todoList[$request->id]);
-    $next();
-});
+        if ($request->value) {
+            $todoList[$request->id]["value"] = $request->value;
+        }
 
-//Delete a todo
-$server->delete('/todo/{id}', function ($request, $response, $next) use (&$todoList) {
-    if (!isset($todoList[$request->id])) {
-        $response->setStatus(500);
+        $response->writeJson((object)$todoList[$request->id]);
         $next();
-    }
+    });
 
-    unset($todoList[$request->id]);
-    $next();
+    //Delete a todo
+    $server->delete('{id}', function ($request, $response, $next) use (&$todoList) {
+        if (!isset($todoList[$request->id])) {
+            $response->setStatus(500);
+            $next();
+        }
+
+        unset($todoList[$request->id]);
+        $next();
+    });
 });
 
 $runner = new CapMousse\ReactRestify\Runner($server);

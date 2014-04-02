@@ -20,6 +20,8 @@ class Router extends EventEmitter
      */
     private $uri = false;
 
+    private $group;
+
     /**
      * Create a new routing element
      *
@@ -67,7 +69,34 @@ class Router extends EventEmitter
      */
     public function addRoute($method, $route, $callback)
     {
+        if (!empty($this->group)) {
+            $route = implode('/', $this->group) . '/' . $route;
+        }
+
         return $this->routes[] = new Route($method, $route, $callback);
+    }
+
+    /**
+     * Create a new group of routes
+     * @param  String $prefix prefix of thes routes
+     * @return void
+     */
+    public function openGroup($prefix)
+    {
+        if (empty($this->group)) {
+            $this->group = [$prefix];
+        } else {
+            $this->group[] = $prefix;
+        }
+    }
+
+    /**
+     * Close the last opened group
+     * @return void
+     */
+    public function closeGroup()
+    {
+        array_pop($this->group);
     }
 
     /**

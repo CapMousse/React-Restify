@@ -139,6 +139,18 @@ class Server extends EventEmitter
     }
 
     /**
+     * Create a new group of route
+     * @param  string   $prefix   prefix of the routes
+     * @param  function $callback
+     */
+    public function group($prefix, $callback)
+    {
+        $this->router->openGroup($prefix);
+        $callback($this);
+        $this->router->closeGroup();
+    }
+
+    /**
      * The the Access-Control-Allow-Origin header
      *
      * @param string $origin

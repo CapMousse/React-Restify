@@ -18,6 +18,12 @@ class Route
         $this->action = $action;
     }
 
+    /**
+     * Create a new filter for current route
+     * @param  String $param  parameter to filter
+     * @param  String $filter regexp to execute
+     * @return void
+     */
     public function where($param, $filter)
     {
         if (is_array($param)) {
@@ -28,6 +34,10 @@ class Route
         $this->filters[$param] = $filter;
     }
 
+    /**
+     * Parse route uri
+     * @return void
+     */
     public function parse()
     {
         preg_match_all("#\{(\w+)\}#", $this->uri, $params);
@@ -40,6 +50,10 @@ class Route
         $this->parsed = str_replace(array_keys($replace), array_values($replace), $this->uri);
     }
 
+    /**
+     * Check if uri is parsed
+     * @return boolean
+     */
     public function isParsed()
     {
         return !empty($this->parsed);
