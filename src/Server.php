@@ -88,9 +88,7 @@ class Server extends EventEmitter
      */
     public function post($route, $callback)
     {
-        $this->router->addRoute("POST", $route, $callback);
-
-        return $this;
+        return $this->router->addRoute("POST", $route, $callback);
     }
 
     /**
@@ -103,9 +101,7 @@ class Server extends EventEmitter
      */
     public function get($route, $callback)
     {
-        $this->router->addRoute("GET", $route, $callback);
-
-        return $this;
+        return $this->router->addRoute("GET", $route, $callback);
     }
 
     /**
@@ -118,9 +114,7 @@ class Server extends EventEmitter
      */
     public function delete($route, $callback)
     {
-        $this->router->addRoute("DELETE", $route, $callback);
-
-        return $this;
+        return $this->router->addRoute("DELETE", $route, $callback);
     }
 
     /**
@@ -133,9 +127,7 @@ class Server extends EventEmitter
      */
     public function put($route, $callback)
     {
-        $this->router->addRoute("PUT", $route, $callback);
-
-        return $this;
+        return $this->router->addRoute("PUT", $route, $callback);
     }
 
     /**

@@ -39,7 +39,7 @@ $server->group('todo', function($server) use (&$todoList){
 
         $response->writeJson((object)$todoList[$request->id]);
         $next();
-    });
+    })->where('id', '[0-9]+');
 
     //Update a todo
     $server->put('{id}', function ($request, $response, $next) use (&$todoList) {
