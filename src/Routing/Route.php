@@ -8,13 +8,41 @@ use CapMousse\ReactRestify\Http\Response;
 
 class Route extends EventEmitter
 {
+    /**
+     * Regexp ready route
+     * @var String
+     */
     public $parsedRoute;
+
+    /**
+     * Route method type
+     * @var String
+     */
     public $method;
+
+    /**
+     * Route action
+     * @var Callable
+     */
     public $action;
 
+    /**
+     * Route uri
+     * @var String
+     */
     private $uri;
+
+    /**
+     * Route filters
+     * @var array
+     */
     private $filters = array();
 
+    /**
+     * @param String   $method
+     * @param String   $uri   
+     * @param Callable $action
+     */
     public function __construct ($method, $uri, $action)
     {
         $this->method = $method;
@@ -43,8 +71,8 @@ class Route extends EventEmitter
     /**
      * Helper to listing to after event
      * 
-     * @param  [type] $callback [description]
-     * @return [type]           [description]
+     * @param  Callable $callback
+     * @return Void
      */
     public function after($callback)
     {
@@ -83,7 +111,7 @@ class Route extends EventEmitter
      *
      * @param \React\Http\Request     $request
      * @param \React\Restify\Response $response
-     * @param Function                $next
+     * @param Callable                $next
      * 
      * @return Void
      */

@@ -6,7 +6,16 @@ use CapMousse\ReactRestify\Evenement\EventEmitter;
 
 class Group extends EventEmitter
 {
+    /**
+     * Router instance
+     * @var \CapMousse\ReactRestify\Routing\Router
+     */
     private $router;
+
+    /**
+     * Group prefix
+     * @var String
+     */
     private $prefix;
 
     /**
@@ -20,7 +29,7 @@ class Group extends EventEmitter
      * 
      * @param  \CapMousse\ReactRestify\Routing\Router $router
      * @param  String                                 $prefix   
-     * @param  Function                               $callback
+     * @param  Callable                               $callback
      */
     public function __construct($router, $prefix)
     {
@@ -28,80 +37,9 @@ class Group extends EventEmitter
         $this->prefix = $prefix;
     }
 
-    /**
-     * Add a post route
-     *
-     * @param string $route
-     * @param mixed  $callback
-     *
-     * @return \CapMousse\ReactRestify\Routing\Route
-     */
-    public function post($route, $callback)
+    public function addRoute($method, $route, $callback)
     {
-        $route = $this->router->addRoute("POST", $this->prefix . '/' . $route, $callback);
-
-        $route->onAny(function($event, $arguments){
-            $this->emit($event, $arguments);
-        });
-
-        $this->routes[] = $route;
-
-        return $route;
-    }
-
-    /**
-     * Add a get route
-     *
-     * @param string $route
-     * @param mixed  $callback
-     *
-     * @return \CapMousse\ReactRestify\Routing\Route
-     */
-    public function get($route, $callback)
-    {
-        $route = $this->router->addRoute("GET", $this->prefix . '/' . $route, $callback);
-
-        $route->onAny(function($event, $arguments){
-            $this->emit($event, $arguments);
-        });
-
-        $this->routes[] = $route;
-
-        return $route;
-    }
-
-    /**
-     * Add a del route
-     *
-     * @param string $route
-     * @param mixed  $callback
-     *
-     * @return \CapMousse\ReactRestify\Routing\Route
-     */
-    public function delete($route, $callback)
-    {
-        $route = $this->router->addRoute("DELETE", $this->prefix . '/' . $route, $callback);
-
-        $route->onAny(function($event, $arguments){
-            $this->emit($event, $arguments);
-        });
-
-        $this->routes[] = $route;
-
-        return $route;
-    }
-
-    /**
-     * Add a put route
-     *
-     * @param string $route
-     * @param mixed  $callback
-     *
-     * @return \CapMousse\ReactRestify\Routing\Route
-     */
-    public function put($route, $callback)
-    {
-        $route = $this->router->addRoute("PUT", $this->prefix . '/' . $route, $callback);
+        $route = $this->router->addRoute($method, $this->prefix . '/' . $route, $callback);
 
         $route->onAny(function($event, $arguments){
             $this->emit($event, $arguments);
@@ -115,7 +53,7 @@ class Group extends EventEmitter
     /**
      * Add a new group of routes
      * @param  string   $prefix 
-     * @param  callback $callback
+     * @param  Callable $callback
      *
      * return \CapMousse\ReactRestify\Routing\Group
      */
@@ -130,13 +68,24 @@ class Group extends EventEmitter
 
 
     /**
-     * Helper to listing to after event
+     * Helper to listen to after event
      * 
-     * @param  [type] $callback [description]
-     * @return [type]           [description]
+     * @param  Callable $callback
+     * @return Void
      */
     public function after($callback)
     {
         $this->on('after', $callback);
+    }
+
+    /**
+     * [__call description]
+     * @param  string $name      method to call
+     * @param  array  $arguments
+     */
+    public function __call($name, $arguments)
+    {
+        $arguments =  array_merge([$name], $arguments);
+        return call_user_func_array(array($this, 'addRoute'), $arguments);
     }
 }

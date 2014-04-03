@@ -61,9 +61,9 @@ class Router extends EventEmitter
     /**
      * Add a new route
      *
-     * @param string   $method   type of route
-     * @param string   $route    uri to catch
-     * @param function $callback
+     * @param String   $method   type of route
+     * @param String   $route    uri to catch
+     * @param Callable $callback
      */
     public function addRoute($method, $route, $callback)
     {
@@ -92,7 +92,7 @@ class Router extends EventEmitter
      * @param \React\Restify\Response $response
      *
      * @throws \RuntimeException
-     * @return mixed
+     * @return Void
      */
     public function launch(Request $request, Response $response, $next)
     {
@@ -106,7 +106,7 @@ class Router extends EventEmitter
             $this->uri = "/";
         }
 
-        return $this->matchRoutes($request, $response, $next);
+        $this->matchRoutes($request, $response, $next);
     }
 
     /**
@@ -117,7 +117,7 @@ class Router extends EventEmitter
      * @param \React\Restify\Response $response
      *
      * @throws \RuntimeException
-     * @return mixed
+     * @return Void
      */
     private function matchRoutes(Request $request, Response $response, $next)
     {
@@ -146,14 +146,16 @@ class Router extends EventEmitter
                     $request->setData($method_args);
                 }
 
-                return $route->run($request, $response, $next);
+                $route->run($request, $response, $next);
+                return;
             }
         }
 
         if ($badMethod) {
-            return $this->emit('MethodNotAllowed', array($request, $response, $next));
+            $this->emit('MethodNotAllowed', array($request, $response, $next));
+            return;
         }
 
-        return $this->emit('NotFound', array($request, $response, $next));
+        $this->emit('NotFound', array($request, $response, $next));
     }
 }

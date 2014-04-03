@@ -81,61 +81,9 @@ class Server
     }
 
     /**
-     * Add a post route
-     *
-     * @param string $route
-     * @param mixed  $callback
-     *
-     * @return \CapMousse\ReactRestify\Routing\Route
-     */
-    public function post($route, $callback)
-    {
-        return $this->router->addRoute("POST", $route, $callback);
-    }
-
-    /**
-     * Add a get route
-     *
-     * @param string $route
-     * @param mixed  $callback
-     *
-     * @return \CapMousse\ReactRestify\Routing\Route
-     */
-    public function get($route, $callback)
-    {
-        return $this->router->addRoute("GET", $route, $callback);
-    }
-
-    /**
-     * Add a del route
-     *
-     * @param string $route
-     * @param mixed  $callback
-     *
-     * @return \CapMousse\ReactRestify\Routing\Route
-     */
-    public function delete($route, $callback)
-    {
-        return $this->router->addRoute("DELETE", $route, $callback);
-    }
-
-    /**
-     * Add a put route
-     *
-     * @param string $route
-     * @param mixed  $callback
-     *
-     * @return \CapMousse\ReactRestify\Routing\Route
-     */
-    public function put($route, $callback)
-    {
-        return $this->router->addRoute("PUT", $route, $callback);
-    }
-
-    /**
      * Create a new group of route
-     * @param  string   $prefix   prefix of the routes
-     * @param  function $callback
+     * @param  String   $prefix   prefix of the routes
+     * @param  Callable $callback
      *
      * @return \CapMousse\ReactRestify\Routing\Routes
      */
@@ -180,11 +128,20 @@ class Server
     /**
      * Manual router event manager
      * @param  String   $event    
-     * @param  Fruntion $callback
+     * @param  Callable $callback
      */
     public function on($event, $callback)
     {
         $this->router->removeAllListeners($event);
         $this->router->on($event, $callback);
+    }
+
+    /**
+     * @param  string $name      method to call
+     * @param  array  $arguments
+     */
+    public function __call($name, $arguments)
+    {
+        return $this->router->addRoute($name, $arguments[0] $arguments[1]);
     }
 }
