@@ -10,6 +10,12 @@ class Routes extends EventEmitter
     private $prefix;
 
     /**
+     * Routes of the group
+     * @var array
+     */
+    public $routes = array();
+
+    /**
      * Create a new group of routes
      * 
      * @param  \CapMousse\ReactRestify\Routing\Router $router
@@ -33,9 +39,12 @@ class Routes extends EventEmitter
     public function post($route, $callback)
     {
         $route = $this->router->addRoute("POST", $this->prefix . '/' . $route, $callback);
+
         $route->onAny(function($event, $arguments){
             $this->emit($event, $arguments);
         });
+
+        $this->routes[] = $route;
 
         return $route;
     }
@@ -51,9 +60,12 @@ class Routes extends EventEmitter
     public function get($route, $callback)
     {
         $route = $this->router->addRoute("GET", $this->prefix . '/' . $route, $callback);
+
         $route->onAny(function($event, $arguments){
             $this->emit($event, $arguments);
         });
+
+        $this->routes[] = $route;
 
         return $route;
     }
@@ -69,9 +81,12 @@ class Routes extends EventEmitter
     public function delete($route, $callback)
     {
         $route = $this->router->addRoute("DELETE", $this->prefix . '/' . $route, $callback);
+
         $route->onAny(function($event, $arguments){
             $this->emit($event, $arguments);
         });
+
+        $this->routes[] = $route;
 
         return $route;
     }
@@ -87,9 +102,12 @@ class Routes extends EventEmitter
     public function put($route, $callback)
     {
         $route = $this->router->addRoute("PUT", $this->prefix . '/' . $route, $callback);
+
         $route->onAny(function($event, $arguments){
             $this->emit($event, $arguments);
         });
+
+        $this->routes[] = $route;
 
         return $route;
     }
