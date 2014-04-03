@@ -12,7 +12,7 @@ class Server
      * Name of the server
      * @var string
      */
-    public $name = "React/Restify";
+    public $name = "ReactRestify";
 
     /**
      * Version of the API
@@ -25,6 +25,9 @@ class Server
      */
     private $router;
 
+    /**
+     * @var string
+     */
     private $allowOrigin = "*";
 
     /**
@@ -83,7 +86,7 @@ class Server
      * @param string $route
      * @param mixed  $callback
      *
-     * @return Server
+     * @return \CapMousse\ReactRestify\Routing\Route
      */
     public function post($route, $callback)
     {
@@ -96,7 +99,7 @@ class Server
      * @param string $route
      * @param mixed  $callback
      *
-     * @return Server
+     * @return \CapMousse\ReactRestify\Routing\Route
      */
     public function get($route, $callback)
     {
@@ -109,7 +112,7 @@ class Server
      * @param string $route
      * @param mixed  $callback
      *
-     * @return Server
+     * @return \CapMousse\ReactRestify\Routing\Route
      */
     public function delete($route, $callback)
     {
@@ -122,7 +125,7 @@ class Server
      * @param string $route
      * @param mixed  $callback
      *
-     * @return Server
+     * @return \CapMousse\ReactRestify\Routing\Route
      */
     public function put($route, $callback)
     {
@@ -133,12 +136,12 @@ class Server
      * Create a new group of route
      * @param  string   $prefix   prefix of the routes
      * @param  function $callback
+     *
+     * @return \CapMousse\ReactRestify\Routing\Routes
      */
     public function group($prefix, $callback)
     {
-        $this->router->openGroup($prefix);
-        $callback($this);
-        $this->router->closeGroup();
+        return $this->router->addGroup($prefix, $callback);
     }
 
     /**

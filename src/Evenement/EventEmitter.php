@@ -5,13 +5,30 @@ namespace CapMousse\ReactRestify\Evenement;
 
 class EventEmitter extends \Evenement\EventEmitter 
 {
+    /**
+     * @var array
+     */
     protected $anyListeners = array();
 
+    /**
+     * Listen all event
+     * 
+     * @param  Function $listener
+     * 
+     * @return void
+     */
     public function onAny($listener)
     {
         $this->anyListeners[] = $listener;
     }
 
+    /**
+     * Disable a onAny listener
+     * 
+     * @param  Function $listener
+     * 
+     * @return Void
+     */
     public function offAny($listener)
     {
         if (false !== $index = array_search($listener, $this->anyListeners, true)) {
@@ -19,6 +36,14 @@ class EventEmitter extends \Evenement\EventEmitter
         }
     }
 
+    /**
+     * Emit an event
+     * 
+     * @param  string $event     
+     * @param  array  $arguments
+     * 
+     * @return Void
+     */
     public function emit($event, array $arguments = array())
     {
         foreach ($this->anyListeners as $listener) {

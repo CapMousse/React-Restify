@@ -26,14 +26,14 @@ $server->post('/', function ($request, $response, $next) use (&$todoList) {
 
     $response->writeJson((object)array("id" => $id));
     $next();
-})->after(function($request, $response) use (&$todoList){
-    echo "A new todo as been created at id ".(count($todoList)-1);
+})->after(function($request, $response, $route) use (&$todoList){
+    echo "\nA new todo as been created at id ".(count($todoList)-1);
 });
 
 
-$server->group('todo', function($server) use (&$todoList){
+$server->group('todo', function($routes) use (&$todoList){
     //Get a single todo
-    $server->get('{id}', function ($request, $response, $next) use (&$todoList) {
+    $routes->get('{id}', function ($request, $response, $next) use (&$todoList) {
         if (!isset($todoList[$request->id])) {
             $response->setStatus(500);
             return $next();
@@ -44,7 +44,7 @@ $server->group('todo', function($server) use (&$todoList){
     })->where('id', '[0-9]+');
 
     //Update a todo
-    $server->put('{id}', function ($request, $response, $next) use (&$todoList) {
+    $routes->put('{id}', function ($request, $response, $next) use (&$todoList) {
         if (!isset($todoList[$request->id]) || (!$request->name && !$request->value)) {
             $response->setStatus(500);
             $next();
@@ -60,18 +60,26 @@ $server->group('todo', function($server) use (&$todoList){
 
         $response->writeJson((object)$todoList[$request->id]);
         $next();
+    })->after(function($request, $response, $route){
+        echo "\nTodo ".$request->id." as been modified";
     });
 
     //Delete a todo
-    $server->delete('{id}', function ($request, $response, $next) use (&$todoList) {
+    $routes->delete('{id}', function ($request, $response, $next) use (&$todoList) {
         if (!isset($todoList[$request->id])) {
             $response->setStatus(500);
             $next();
         }
 
         unset($todoList[$request->id]);
+        $response->writeJson((object)['error' => false]);
         $next();
+    })->after(function($request, $response, $route){
+        echo "\nTodo ".$request->id." as been deleted";
     });
+
+})->after(function($request, $response, $route) use (&$todoList){
+    echo "\nTodo access";
 });
 
 $server->on('NotFound', function($request, $response, $next){

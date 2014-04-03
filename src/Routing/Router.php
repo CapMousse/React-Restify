@@ -20,8 +20,6 @@ class Router extends EventEmitter
      */
     private $uri = false;
 
-    private $group;
-
     /**
      * Create a new routing element
      *
@@ -69,10 +67,6 @@ class Router extends EventEmitter
      */
     public function addRoute($method, $route, $callback)
     {
-        if (!empty($this->group)) {
-            $route = implode('/', $this->group) . '/' . $route;
-        }
-
         return $this->routes[] = new Route($method, $route, $callback);
     }
 
@@ -81,22 +75,12 @@ class Router extends EventEmitter
      * @param  String $prefix prefix of thes routes
      * @return void
      */
-    public function openGroup($prefix)
+    public function addGroup($prefix, $callback)
     {
-        if (empty($this->group)) {
-            $this->group = [$prefix];
-        } else {
-            $this->group[] = $prefix;
-        }
-    }
+        $routes = new Routes($this, $prefix, $callback);
+        $callback($routes);
 
-    /**
-     * Close the last opened group
-     * @return void
-     */
-    public function closeGroup()
-    {
-        array_pop($this->group);
+        return $routes;
     }
 
     /**
@@ -108,7 +92,8 @@ class Router extends EventEmitter
      * @throws \RuntimeException
      * @return mixed
      */
-    public function launch(Request $request, Response $response, $next){
+    public function launch(Request $request, Response $response, $next)
+    {
         if (count($this->routes) === 0) {
             throw new \RuntimeException("No routes defined");
         }
@@ -132,7 +117,8 @@ class Router extends EventEmitter
      * @throws \RuntimeException
      * @return mixed
      */
-    private function matchRoutes(Request $request, Response $response, $next){
+    private function matchRoutes(Request $request, Response $response, $next)
+    {
         $badMethod = false;
 
         foreach ($this->routes as $route) {
@@ -158,7 +144,7 @@ class Router extends EventEmitter
                     $request->setData($method_args);
                 }
 
-                return $this->launchRoute($route, $request, $response, $next);
+                return $route->run($request, $response, $next);
             }
         }
 
@@ -167,55 +153,5 @@ class Router extends EventEmitter
         }
 
         return $this->emit('NotFound', array($request, $response, $next));
-    }
-
-    /**
-     * Launch the asked route
-     *
-     * @param mixed                   $action   the function/class to call
-     * @param \React\Http\Request     $request
-     * @param \React\Restify\Response $response
-     * @param array                   $args     args of the route
-     *
-     * @return boolean
-     */
-    private function launchRoute(Route $route, Request $request, Response $response, $next)
-    {
-        $action = $route->action;
-
-        if (is_string($action)) {
-            $action = explode(':', $action);
-            $action[0] = new $action[0]();
-        }
-
-        if (in_array($route->method, array('PUT', 'POST'))) {
-            $dataResult = "";
-            $headers = $request->httpRequest->getHeaders();
-
-            //Get data chunck by chunk
-            $request->httpRequest->on('data', function($data) use ($headers, $request, &$dataResult) {
-                $dataResult .= $data;
-
-                if (isset($headers["Content-Length"])) {
-                    if(strlen($dataResult) == $headers["Content-Length"]) {
-                        $request->httpRequest->close();
-                    }
-                } else {
-                    $request->httpRequest->close();
-                }
-            });
-
-            //Wait request end to launch route
-            $request->httpRequest->on('end', function() use ($route, $action, $request, $response, $next, &$dataResult){
-                parse_str($dataResult, $data);
-                $request->setData($data);
-
-                call_user_func_array($action, array($request, $response, $next));
-                $route->emit('after', [$request, $response]);
-            });
-        } else {
-            call_user_func_array($action, array($request, $response, $next));
-            $route->emit('after', [$request, $response]);
-        }
     }
 }
