@@ -72,15 +72,17 @@ class Router extends EventEmitter
 
     /**
      * Create a new group of routes
+     * 
      * @param  String $prefix prefix of thes routes
-     * @return void
+     * 
+     * @return \CapMousse\ReactRestify\Routing\Group
      */
     public function addGroup($prefix, $callback)
     {
-        $routes = new Routes($this, $prefix, $callback);
-        $callback($routes);
+        $group = new Group($this, $prefix, $callback);
+        $callback($group);
 
-        return $routes;
+        return $group;
     }
 
     /**

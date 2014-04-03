@@ -4,7 +4,7 @@ namespace CapMousse\ReactRestify\Routing;
 
 use CapMousse\ReactRestify\Evenement\EventEmitter;
 
-class Routes extends EventEmitter
+class Group extends EventEmitter
 {
     private $router;
     private $prefix;
@@ -16,7 +16,7 @@ class Routes extends EventEmitter
     public $routes = array();
 
     /**
-     * Create a new group of routes
+     * Create a new group
      * 
      * @param  \CapMousse\ReactRestify\Routing\Router $router
      * @param  String                                 $prefix   
@@ -117,7 +117,7 @@ class Routes extends EventEmitter
      * @param  string   $prefix 
      * @param  callback $callback
      *
-     * return \CapMousse\ReactRestify\Routing\Routes
+     * return \CapMousse\ReactRestify\Routing\Group
      */
     public function group($prefix, $callback)
     {
