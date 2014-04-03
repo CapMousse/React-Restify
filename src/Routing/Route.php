@@ -2,7 +2,9 @@
 
 namespace CapMousse\ReactRestify\Routing;
 
-class Route
+use CapMousse\ReactRestify\Evenement\EventEmitter;
+
+class Route extends EventEmitter
 {
     public $parsedRoute;
     public $method;
@@ -32,6 +34,11 @@ class Route
         }
 
         $this->filters[$param] = $filter;
+    }
+
+    public function after($callback)
+    {
+        $this->on('after', $callback);
     }
 
     /**

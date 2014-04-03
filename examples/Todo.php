@@ -26,6 +26,8 @@ $server->post('/', function ($request, $response, $next) use (&$todoList) {
 
     $response->writeJson((object)array("id" => $id));
     $next();
+})->after(function($request, $response) use (&$todoList){
+    echo "A new todo as been created at id ".(count($todoList)-1);
 });
 
 
@@ -70,6 +72,13 @@ $server->group('todo', function($server) use (&$todoList){
         unset($todoList[$request->id]);
         $next();
     });
+});
+
+$server->on('NotFound', function($request, $response, $next){
+    $response->write('You fail, 404');
+    $response->setStatus(404);
+
+    $next();
 });
 
 $runner = new CapMousse\ReactRestify\Runner($server);

@@ -2,7 +2,7 @@
 
 namespace CapMousse\ReactRestify\Routing;
 
-use Evenement\EventEmitter;
+use CapMousse\ReactRestify\Evenement\EventEmitter;
 use CapMousse\ReactRestify\Http\Request;
 use CapMousse\ReactRestify\Http\Response;
 
@@ -133,12 +133,19 @@ class Router extends EventEmitter
      * @return mixed
      */
     private function matchRoutes(Request $request, Response $response, $next){
+        $badMethod = false;
+
         foreach ($this->routes as $route) {
             if (!$route->isParsed()) {
                 $route->parse();
             }
 
-            if (preg_match('#'.$route->parsed.'$#', $request->httpRequest->getPath(), $array) && $route->method == strtoupper($request->httpRequest->getMethod())) {
+            if (preg_match('#'.$route->parsed.'$#', $request->httpRequest->getPath(), $array)) {
+                if ($route->method != strtoupper($request->httpRequest->getMethod())) {
+                    $badMethod = true;
+                    continue;
+                }
+
                 $method_args = array();
 
                 foreach ($array as $name => $value) {
@@ -155,7 +162,11 @@ class Router extends EventEmitter
             }
         }
 
-        return $this->emit('NotFound', array($this->uri, $next));
+        if ($badMethod) {
+            return $this->emit('MethodNotAllowed', array($request, $response, $next));
+        }
+
+        return $this->emit('NotFound', array($request, $response, $next));
     }
 
     /**
@@ -182,7 +193,7 @@ class Router extends EventEmitter
             $headers = $request->httpRequest->getHeaders();
 
             //Get data chunck by chunk
-            $request->httpRequest->on('data', function($data) use ($headers, &$request, &$dataResult) {
+            $request->httpRequest->on('data', function($data) use ($headers, $request, &$dataResult) {
                 $dataResult .= $data;
 
                 if (isset($headers["Content-Length"])) {
@@ -195,13 +206,16 @@ class Router extends EventEmitter
             });
 
             //Wait request end to launch route
-            $request->httpRequest->on('end', function() use ($action, $request, $response, $next, &$dataResult){
+            $request->httpRequest->on('end', function() use ($route, $action, $request, $response, $next, &$dataResult){
                 parse_str($dataResult, $data);
                 $request->setData($data);
+
                 call_user_func_array($action, array($request, $response, $next));
+                $route->emit('after', [$request, $response]);
             });
         } else {
             call_user_func_array($action, array($request, $response, $next));
+            $route->emit('after', [$request, $response]);
         }
     }
 }

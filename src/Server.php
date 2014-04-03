@@ -4,10 +4,9 @@ namespace CapMousse\ReactRestify;
 
 use React\Http\Request as HttpRequest;
 use React\Http\Response as HttpResponse;
+use CapMousse\ReactRestify\Evenement\EventEmitter;
 
-use Evenement\EventEmitter;
-
-class Server extends EventEmitter
+class Server
 {
     /**
      * Name of the server
@@ -43,6 +42,8 @@ class Server extends EventEmitter
         }
 
         $this->router = new Routing\Router();
+
+        $this->initEvents();
     }
 
     /**
@@ -58,10 +59,8 @@ class Server extends EventEmitter
         $request = new Http\Request($HttpRequest);
         $response = new Http\Response($HttpResponse, $this->name, $this->version);
 
-        $this->emit('parseRequest', array($HttpRequest, $response));
-
         try{
-            $this->router->launch($request, $response, function() use (&$request, &$response, $start){
+            $this->router->launch($request, $response, function() use ($request, $response, $start){
                 $end = microtime(true) - $start;
 
                 $response->addHeader("X-Response-Time", $end);
@@ -150,5 +149,39 @@ class Server extends EventEmitter
     public function setAccessControlAllowOrigin($origin)
     {
         $this->allowOrigin = $origin;
+    }
+
+    /**
+     * Init default event catch
+     * 
+     * @return void
+     */
+    private function initEvents()
+    {
+        $this->router->on('NotFound', function($request, $response, $next){
+            $response->write('Not found');
+            $response->setStatus(404);
+
+            $next();
+        });
+
+
+        $this->router->on('MethodNotAllowed', function($request, $response, $next){
+            $response->write('Method Not Allowed');
+            $response->setStatus(405);
+
+            $next();
+        });
+    }
+
+    /**
+     * Manual router event manager
+     * @param  String   $event    
+     * @param  Fruntion $callback
+     */
+    public function on($event, $callback)
+    {
+        $this->router->removeAllListeners($event);
+        $this->router->on($event, $callback);
     }
 }
