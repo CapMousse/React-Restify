@@ -19,7 +19,7 @@ class Runner
     {
         $loop = Factory::create();
         $socket = new SocketServer($loop);
-        $http = new HttpServer($socket, $loop);
+        $http = new HttpServer($socket);
 
         $http->on('request', $this->app);
         echo("Server running on {$host}:{$port}\n");

@@ -12,11 +12,11 @@
         }
     ],
     "require"       : {
-        "react/http":  "0.3.*"
+        "react/http":  "0.4.*"
     },
     "autoload"      : {
-        "psr-0": {
-            "CapMousse\\ReactRestify"       : "src"
+        "psr-4": {
+            "CapMousse\\ReactRestify\\"       : "src"
         }
     }
 }

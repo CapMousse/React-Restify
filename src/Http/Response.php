@@ -1,6 +1,6 @@
 <?php
 
-namespace CapMousse\ReactRestify;
+namespace CapMousse\ReactRestify\Http;
 
 use React\Http\Response as HttpResponse;
 
@@ -63,7 +63,7 @@ class Response
      * @param string $name
      * @param string $value
      *
-     * @return \React\Restify\Response
+     * @return Response
      */
     public function addHeader($name, $value)
     {
@@ -77,7 +77,7 @@ class Response
      *
      * @param int $code
      *
-     * @return \React\Restify\Response
+     * @return Response
      */
     public function setStatus($code)
     {
