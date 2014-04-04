@@ -67,7 +67,7 @@ class Router extends EventEmitter
      */
     public function addRoute($method, $route, $callback)
     {
-        return $this->routes[] = new Route($method, $route, $callback);
+        return $this->routes[] = new Route(strtoupper($method), $route, $callback);
     }
 
     /**
@@ -80,7 +80,6 @@ class Router extends EventEmitter
     public function addGroup($prefix, $callback)
     {
         $group = new Group($this, $prefix, $callback);
-        $callback($group);
 
         return $group;
     }

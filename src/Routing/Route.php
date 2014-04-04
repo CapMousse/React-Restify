@@ -118,7 +118,7 @@ class Route extends EventEmitter
     public function run(Request $request, Response $response, $next)
     {
         if (is_string($this->action)) {
-            $this->action = explode(':', $action);
+            $this->action = explode(':', $this->action);
             $this->action[0] = new $action[0]();
         }
 
@@ -141,8 +141,10 @@ class Route extends EventEmitter
 
             //Wait request end to launch route
             $request->httpRequest->on('end', function() use ($request, $response, $next, &$dataResult){
-                parse_str($dataResult, $data);
-                $request->setData($data);
+                if ($dataResult !== null) {
+                    parse_str($dataResult, $data);
+                    $request->setData($data);   
+                }
 
                 call_user_func_array($this->action, array($request, $response, $next));
                 $this->emit('after', [$request, $response, $this]);

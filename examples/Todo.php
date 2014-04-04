@@ -35,7 +35,7 @@ $server->group('todo', function($routes) use (&$todoList){
     //Get a single todo
     $routes->get('{id}', function ($request, $response, $next) use (&$todoList) {
         if (!isset($todoList[$request->id])) {
-            $response->setStatus(500);
+            $response->setStatus(404);
             return $next();
         }
 

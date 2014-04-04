@@ -142,6 +142,6 @@ class Server
      */
     public function __call($name, $arguments)
     {
-        return $this->router->addRoute($name, $arguments[0] $arguments[1]);
+        return $this->router->addRoute($name, $arguments[0], $arguments[1]);
     }
 }

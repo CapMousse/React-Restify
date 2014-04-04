@@ -31,15 +31,24 @@ class Group extends EventEmitter
      * @param  String                                 $prefix   
      * @param  Callable                               $callback
      */
-    public function __construct($router, $prefix)
+    public function __construct($router, $prefix, $callback)
     {
         $this->router = $router;
         $this->prefix = $prefix;
+
+
+        $callback($this);
     }
 
+    /**
+     * Create a new route for the group
+     * @param String   $method   
+     * @param String   $route    
+     * @param Callable $callback
+     */
     public function addRoute($method, $route, $callback)
     {
-        $route = $this->router->addRoute($method, $this->prefix . '/' . $route, $callback);
+        $route = $this->router->addRoute(strtoupper($method), $this->prefix . '/' . $route, $callback);
 
         $route->onAny(function($event, $arguments){
             $this->emit($event, $arguments);
