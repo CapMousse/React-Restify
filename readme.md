@@ -18,14 +18,14 @@ Here is an exemple of a simple HTTP server replying to all get call like `http:/
 ```php
 require 'vendor/autoload.php';
 
-$server = new React\Restify\Server("MyAPP", "0.0.0.1");
+$server = new CapMousse\ReactRestify\Server("MyAPP", "0.0.0.1");
 
 $server->get('/hello/{name}', function ($request, $response, $next) {
     $response->write("Hello ".$request->name);
     $next();
 });
 
-$runner = new React\Restify\Runner($server);
+$runner = new CapMousse\ReactRestify\Runner($server);
 $runner->listen(1337);
 ```
 
