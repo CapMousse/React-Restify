@@ -20,7 +20,7 @@ require 'vendor/autoload.php';
 
 $server = new React\Restify\Server("MyAPP", "0.0.0.1");
 
-$server->get('/hello/[name]:any', function ($request, $response, $next) {
+$server->get('/hello/{name}', function ($request, $response, $next) {
     $response->write("Hello ".$request->name);
     $next();
 });
