@@ -51,7 +51,7 @@ class Server
     /**
      * Parse request from user
      *
-     * @param \React\Http\Request $HttpRequest
+     * @param \React\Http\Request  $HttpRequest
      * @param \React\Http\Response $HttpResponse
      */
     public function __invoke(HttpRequest $httpRequest, HttpResponse $httpResponse)
@@ -61,7 +61,7 @@ class Server
         $request = new Http\Request($httpRequest);
         $response = new Http\Response($httpResponse, $this->name, $this->version);
 
-        try{
+        try {
             $this->router->launch($request, $response, function() use ($request, $response, $start) {
                 $end = microtime(true) - $start;
 
@@ -72,7 +72,7 @@ class Server
 
                 $response->end();
             });
-        }catch (\Exception $e) {
+        } catch (\Exception $e) {
             $response->write($e->getMessage());
             $response->setStatus(500);
             $response->end();
@@ -81,8 +81,8 @@ class Server
 
     /**
      * Create a new group of route
-     * @param  String   $prefix   prefix of the routes
-     * @param  Callable $callback
+     * @param String   $prefix   prefix of the routes
+     * @param Callable $callback
      *
      * @return \CapMousse\ReactRestify\Routing\Routes
      */
@@ -103,7 +103,7 @@ class Server
 
     /**
      * Init default event catch
-     * 
+     *
      * @return void
      */
     private function initEvents()
@@ -115,7 +115,6 @@ class Server
             $next();
         });
 
-
         $this->router->on('MethodNotAllowed', function($request, $response, $next){
             $response->write('Method Not Allowed');
             $response->setStatus(405);
@@ -126,8 +125,8 @@ class Server
 
     /**
      * Manual router event manager
-     * @param  String   $event    
-     * @param  Callable $callback
+     * @param String   $event
+     * @param Callable $callback
      */
     public function on($event, $callback)
     {
@@ -136,8 +135,8 @@ class Server
     }
 
     /**
-     * @param  string $name      method to call
-     * @param  array  $arguments
+     * @param string $name      method to call
+     * @param array  $arguments
      */
     public function __call($name, $arguments)
     {

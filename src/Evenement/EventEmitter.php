@@ -2,8 +2,7 @@
 
 namespace CapMousse\ReactRestify\Evenement;
 
-
-class EventEmitter extends \Evenement\EventEmitter 
+class EventEmitter extends \Evenement\EventEmitter
 {
     /**
      * @var array
@@ -12,9 +11,9 @@ class EventEmitter extends \Evenement\EventEmitter
 
     /**
      * Listen all event
-     * 
+     *
      * @param Callable $listener
-     * 
+     *
      * @return void
      */
     public function onAny($listener)
@@ -24,9 +23,9 @@ class EventEmitter extends \Evenement\EventEmitter
 
     /**
      * Disable a onAny listener
-     * 
+     *
      * @param Callable $listener
-     * 
+     *
      * @return Void
      */
     public function offAny($listener)
@@ -38,10 +37,10 @@ class EventEmitter extends \Evenement\EventEmitter
 
     /**
      * Emit an event
-     * 
-     * @param  string $event     
-     * @param  array  $arguments
-     * 
+     *
+     * @param string $event
+     * @param array  $arguments
+     *
      * @return Void
      */
     public function emit($event, array $arguments = array())

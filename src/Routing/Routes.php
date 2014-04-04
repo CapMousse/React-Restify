@@ -26,24 +26,23 @@ class Routes extends EventEmitter
 
     /**
      * Create a new group
-     * 
-     * @param  \CapMousse\ReactRestify\Routing\Router $router
-     * @param  String                                 $prefix   
-     * @param  Callable                               $callback
+     *
+     * @param \CapMousse\ReactRestify\Routing\Router $router
+     * @param String                                 $prefix
+     * @param Callable                               $callback
      */
     public function __construct($router, $prefix, $callback)
     {
         $this->router = $router;
         $this->prefix = $prefix;
 
-
         $callback($this);
     }
 
     /**
      * Create a new route for the group
-     * @param String   $method   
-     * @param String   $route    
+     * @param String   $method
+     * @param String   $route
      * @param Callable $callback
      */
     public function addRoute($method, $route, $callback)
@@ -61,8 +60,8 @@ class Routes extends EventEmitter
 
     /**
      * Add a new group of routes
-     * @param  string   $prefix 
-     * @param  Callable $callback
+     * @param string   $prefix
+     * @param Callable $callback
      *
      * return \CapMousse\ReactRestify\Routing\Group
      */
@@ -75,10 +74,9 @@ class Routes extends EventEmitter
         });
     }
 
-
     /**
      * Helper to listen to after event
-     * 
+     *
      * @param  Callable $callback
      * @return Void
      */
@@ -88,13 +86,13 @@ class Routes extends EventEmitter
     }
 
     /**
-     * @param  string $name      method to call
-     * @param  array  $arguments
+     * @param string $name      method to call
+     * @param array  $arguments
      */
     public function __call($name, $arguments)
     {
         $arguments =  array_merge([$name], $arguments);
-        
+
         return call_user_func_array(array($this, 'addRoute'), $arguments);
     }
 }
