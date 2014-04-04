@@ -20,15 +20,16 @@ require 'vendor/autoload.php';
 
 $server = new React\Restify\Server("MyAPP", "0.0.0.1");
 
-$server->get('/hello/[name]:any', function ($request, $response, $args) {
-    $response->write("Hello ".$args['name']);
+$server->get('/hello/[name]:any', function ($request, $response, $next) {
+    $response->write("Hello ".$request->name);
+    $next();
 });
 
 $runner = new React\Restify\Runner($server);
 $runner->listen(1337);
 ```
 
-**More examples can be found on the example directory**
+More examples can be found on the example directory like the **Todo** example, the most complete
 
 ## Design goals
 
