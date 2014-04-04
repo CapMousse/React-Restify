@@ -13,7 +13,7 @@ class EventEmitter extends \Evenement\EventEmitter
     /**
      * Listen all event
      * 
-     * @param  Callable $listener
+     * @param Callable $listener
      * 
      * @return void
      */
@@ -25,7 +25,7 @@ class EventEmitter extends \Evenement\EventEmitter
     /**
      * Disable a onAny listener
      * 
-     * @param  Callable $listener
+     * @param Callable $listener
      * 
      * @return Void
      */

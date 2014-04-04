@@ -131,7 +131,7 @@ class Route extends EventEmitter
                 $dataResult .= $data;
 
                 if (isset($headers["Content-Length"])) {
-                    if(strlen($dataResult) == $headers["Content-Length"]) {
+                    if (strlen($dataResult) == $headers["Content-Length"]) {
                         $request->httpRequest->close();
                     }
                 } else {

@@ -4,7 +4,7 @@ namespace CapMousse\ReactRestify\Routing;
 
 use CapMousse\ReactRestify\Evenement\EventEmitter;
 
-class Group extends EventEmitter
+class Routes extends EventEmitter
 {
     /**
      * Router instance
@@ -88,13 +88,13 @@ class Group extends EventEmitter
     }
 
     /**
-     * [__call description]
      * @param  string $name      method to call
      * @param  array  $arguments
      */
     public function __call($name, $arguments)
     {
         $arguments =  array_merge([$name], $arguments);
+        
         return call_user_func_array(array($this, 'addRoute'), $arguments);
     }
 }

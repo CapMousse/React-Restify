@@ -4,7 +4,6 @@ namespace CapMousse\ReactRestify;
 
 use React\Http\Request as HttpRequest;
 use React\Http\Response as HttpResponse;
-use CapMousse\ReactRestify\Evenement\EventEmitter;
 
 class Server
 {
@@ -55,15 +54,15 @@ class Server
      * @param \React\Http\Request $HttpRequest
      * @param \React\Http\Response $HttpResponse
      */
-    public function __invoke(HttpRequest $HttpRequest, HttpResponse $HttpResponse)
+    public function __invoke(HttpRequest $httpRequest, HttpResponse $httpResponse)
     {
         $start = microtime(true);
 
-        $request = new Http\Request($HttpRequest);
-        $response = new Http\Response($HttpResponse, $this->name, $this->version);
+        $request = new Http\Request($httpRequest);
+        $response = new Http\Response($httpResponse, $this->name, $this->version);
 
         try{
-            $this->router->launch($request, $response, function() use ($request, $response, $start){
+            $this->router->launch($request, $response, function() use ($request, $response, $start) {
                 $end = microtime(true) - $start;
 
                 $response->addHeader("X-Response-Time", $end);
@@ -73,7 +72,7 @@ class Server
 
                 $response->end();
             });
-        }catch (\Exception $e){
+        }catch (\Exception $e) {
             $response->write($e->getMessage());
             $response->setStatus(500);
             $response->end();

@@ -28,7 +28,7 @@ class Router extends EventEmitter
      * @throws \InvalidArgumentException
      * @return Router
      */
-    function __construct($routes = array())
+    public function __construct($routes = array())
     {
         if (!is_array($routes)) {
             throw new \InvalidArgumentException("Routes must be an array");
@@ -79,7 +79,7 @@ class Router extends EventEmitter
      */
     public function addGroup($prefix, $callback)
     {
-        $group = new Group($this, $prefix, $callback);
+        $group = new Routes($this, $prefix, $callback);
 
         return $group;
     }
@@ -133,16 +133,16 @@ class Router extends EventEmitter
                     continue;
                 }
 
-                $method_args = array();
+                $methodArgs = array();
 
                 foreach ($array as $name => $value) {
                     if (!is_int($name)) {
-                      $method_args[$name] = $value;
+                      $methodArgs[$name] = $value;
                     }
                 }
 
-                if (count($method_args) > 0) {
-                    $request->setData($method_args);
+                if (count($methodArgs) > 0) {
+                    $request->setData($methodArgs);
                 }
 
                 $route->run($request, $response, $next);
