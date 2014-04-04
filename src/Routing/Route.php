@@ -40,7 +40,7 @@ class Route extends EventEmitter
 
     /**
      * @param String   $method
-     * @param String   $uri   
+     * @param String   $uri
      * @param Callable $action
      */
     public function __construct ($method, $uri, $action)
@@ -52,16 +52,17 @@ class Route extends EventEmitter
 
     /**
      * Create a new filter for current route
-     * 
-     * @param  String $param  parameter to filter
-     * @param  String $filter regexp to execute
-     * 
+     *
+     * @param String $param  parameter to filter
+     * @param String $filter regexp to execute
+     *
      * @return void
      */
     public function where($param, $filter)
     {
         if (is_array($param)) {
             $this->filters = array_merge($this->filters, $param);
+
             return;
         }
 
@@ -70,7 +71,7 @@ class Route extends EventEmitter
 
     /**
      * Helper to listing to after event
-     * 
+     *
      * @param  Callable $callback
      * @return Void
      */
@@ -81,7 +82,7 @@ class Route extends EventEmitter
 
     /**
      * Parse route uri
-     * 
+     *
      * @return void
      */
     public function parse()
@@ -98,7 +99,7 @@ class Route extends EventEmitter
 
     /**
      * Check if uri is parsed
-     * 
+     *
      * @return boolean
      */
     public function isParsed()
@@ -112,7 +113,7 @@ class Route extends EventEmitter
      * @param \React\Http\Request     $request
      * @param \React\Restify\Response $response
      * @param Callable                $next
-     * 
+     *
      * @return Void
      */
     public function run(Request $request, Response $response, $next)
@@ -140,10 +141,10 @@ class Route extends EventEmitter
             });
 
             //Wait request end to launch route
-            $request->httpRequest->on('end', function() use ($request, $response, $next, &$dataResult){
+            $request->httpRequest->on('end', function() use ($request, $response, $next, &$dataResult) {
                 if ($dataResult !== null) {
                     parse_str($dataResult, $data);
-                    $request->setData($data);   
+                    $request->setData($data);
                 }
 
                 call_user_func_array($this->action, array($request, $response, $next));

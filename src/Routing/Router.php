@@ -72,9 +72,9 @@ class Router extends EventEmitter
 
     /**
      * Create a new group of routes
-     * 
-     * @param  String $prefix prefix of thes routes
-     * 
+     *
+     * @param String $prefix prefix of thes routes
+     *
      * @return \CapMousse\ReactRestify\Routing\Group
      */
     public function addGroup($prefix, $callback)
@@ -146,12 +146,14 @@ class Router extends EventEmitter
                 }
 
                 $route->run($request, $response, $next);
+
                 return;
             }
         }
 
         if ($badMethod) {
             $this->emit('MethodNotAllowed', array($request, $response, $next));
+
             return;
         }
 
