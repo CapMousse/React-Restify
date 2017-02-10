@@ -108,16 +108,24 @@ class Server
      */
     private function initEvents()
     {
-        $this->router->on('NotFound', function($request, $response, $next){
+        $this->router->on('NotFound', function($request, $response, $next) {
             $response->write('Not found');
             $response->setStatus(404);
 
             $next();
         });
 
-        $this->router->on('MethodNotAllowed', function($request, $response, $next){
+        $this->router->on('MethodNotAllowed', function($request, $response, $next) {
             $response->write('Method Not Allowed');
             $response->setStatus(405);
+
+            $next();
+        });
+
+        $this->router->on('error', function ($request, $response, $error, $next) {
+            $response->write($error);
+            $response->write("\n".$request->getContent());
+            $response->setStatus(500);
 
             $next();
         });

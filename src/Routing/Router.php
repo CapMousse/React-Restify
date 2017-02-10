@@ -145,6 +145,9 @@ class Router extends EventEmitter
                     $request->setData($methodArgs);
                 }
 
+                $route->on('error', function () {
+                    $this->emit('error', func_get_args());
+                });
                 $route->run($request, $response, $next);
 
                 return;
