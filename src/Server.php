@@ -143,6 +143,20 @@ class Server
     }
 
     /**
+     * Create runner instance
+     * @param  Int    $port
+     * @param  String $host
+     * @return Server
+     */
+    public function listen($port, $host = "127.0.0.1")
+    {
+        $runner = new Runner($this);
+        $runner->listen($port, $host);
+
+        return $this;
+    }
+
+    /**
      * @param string $name      method to call
      * @param array  $arguments
      */

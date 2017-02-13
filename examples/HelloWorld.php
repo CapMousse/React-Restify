@@ -9,5 +9,4 @@ $server->get('/hello/{name}', function ($request, $response, $next) {
     $next();
 });
 
-$runner = new CapMousse\ReactRestify\Runner($server);
-$runner->listen("1337");
+$server->listen(1337);
