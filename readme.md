@@ -20,13 +20,19 @@ require 'vendor/autoload.php';
 
 $server = new CapMousse\ReactRestify\Server("MyAPP", "0.0.0.1");
 
-$server->get('/hello/{name}', function ($request, $response, $next) {
-    $response->write("Hello ".$request->name);
-    $next();
+// Middleware
+$server->use(funciton ($request, $next) {
+	print_r($request->getMethod());
+	$next();
 });
 
-$runner = new CapMousse\ReactRestify\Runner($server);
-$runner->listen(1337);
+$server->get('/hello/{name}', function ($request, $response) {
+    $response
+    	->write("Hello ".$request->name)
+    	->end();
+});
+
+$server->listen(1337);
 ```
 
 More examples can be found on the example directory like the **Todo** example, the most complete

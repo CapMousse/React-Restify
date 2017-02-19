@@ -24,7 +24,7 @@ class Response
      * Array of headers to send
      * @var array
      */
-    private $headers = array();
+    private $headers = [];
 
     /**
      * The content-length
@@ -76,7 +76,6 @@ class Response
      * Set the status code of the response
      *
      * @param int $code
-     *
      * @return Response
      */
     public function setStatus($code)
@@ -98,27 +97,35 @@ class Response
 
     /**
      * Write a HTTP 100 (continue) header
+     * 
+     * @return Reponse
      */
     public function writeContinue()
     {
         $this->httpResponse->writeContinue();
+
+        return $this;
     }
 
     /**
      * Write data to the response
      *
      * @param string $data
+     * @return Reponse
      */
     public function write($data)
     {
         $this->contentLength += strlen($data);
         $this->data .= $data;
+
+        return $this;
     }
 
     /**
      * Write json to the response
      *
      * @param mixed $data
+     * @return Reponse
      */
     public function writeJson($data)
     {
@@ -126,6 +133,23 @@ class Response
 
         $this->write($data);
         $this->addHeader("Content-Type", "application/json");
+
+        return $this;
+    }
+
+    /**
+     * Empty current response
+     * 
+     * @return Reponse
+     */
+    public function reset()
+    {
+        $this->contentLength = 0;
+        $this->data = "";
+        $this->headers = [];
+        $this->status = 200;
+
+        return $this;
     }
 
     /**
@@ -158,22 +182,27 @@ class Response
         }
 
         if (!isset($this->headers["Content-Length"])) {
-            $this->addHeader("Content-Length", $this->contentLength);
-
-            if (null !== $this->server) {
-                $this->addHeader("Server", $this->server);
-            }
-
-            if (null !== $this->version) {
-                $this->addHeader("Server-Version", $this->version);
-            }
-
-            if (!isset($this->headers["Content-Type"])) {
-                $this->addHeader("Content-Type", "text/plain");
-            }
+            $this->sendContentLengthHeaders();
         }
 
         $this->httpResponse->writeHead($this->status, $this->headers);
         $this->headersSent = true;
+    }
+
+    public function sendContentLengthHeaders()
+    {
+        $this->addHeader("Content-Length", $this->contentLength);
+
+        if (null !== $this->server) {
+            $this->addHeader("Server", $this->server);
+        }
+
+        if (null !== $this->version) {
+            $this->addHeader("Server-Version", $this->version);
+        }
+
+        if (!isset($this->headers["Content-Type"])) {
+            $this->addHeader("Content-Type", "text/plain");
+        }
     }
 }

@@ -3,9 +3,12 @@
 namespace CapMousse\ReactRestify\Routing;
 
 use CapMousse\ReactRestify\Evenement\EventEmitter;
+use CapMousse\ReactRestify\Routing\ControllerContainer;
+use CapMousse\ReactRestify\Traits\EventTrait;
 
 class Routes extends EventEmitter
 {
+    use EventTrait;
     /**
      * Router instance
      * @var \CapMousse\ReactRestify\Routing\Router
@@ -22,7 +25,7 @@ class Routes extends EventEmitter
      * Routes of the group
      * @var array
      */
-    public $routes = array();
+    public $routes = [];
 
     /**
      * Create a new group
@@ -72,17 +75,6 @@ class Routes extends EventEmitter
         $group->onAny(function($event, $arguments){
             $this->emit($event, $arguments);
         });
-    }
-
-    /**
-     * Helper to listen to after event
-     *
-     * @param  Callable $callback
-     * @return Void
-     */
-    public function after($callback)
-    {
-        $this->on('after', $callback);
     }
 
     /**

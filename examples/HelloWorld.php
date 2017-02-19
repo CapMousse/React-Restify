@@ -9,4 +9,9 @@ $server->get('/hello/{name}', function ($request, $response, $next) {
     $next();
 });
 
+$server->get('/hello/{name}', function ($request, $response) {
+    $response->write("\nWe hope you are well !");
+    $response->end();
+});
+
 $server->listen(1337);

@@ -2,91 +2,145 @@
 
 require '../vendor/autoload.php';
 
-$server = new CapMousse\ReactRestify\Server("SmallTodoServer", "0.0.0.1");
+use CapMousse\ReactRestify\Http\Request;
+use CapMousse\ReactRestify\Http\Response;
 
-$todoList = array(
-    array("name" => "Build a todo list example", "value" => "done")
-);
+class Test {
+    public function blop () {
+        print_r("blop");
+    }
+}
 
-//List all todo
-$server->get('/', function ($request, $response, $next) use (&$todoList) {
-    $response->writeJson((object)$todoList);
-    $next();
-});
+class TodoListController {
+    private static $todoList = array(
+        array("name" => "Build a todo list example", "value" => "done")
+    );
 
-//Create a new todo
-$server->post('/', function ($request, $response, $next) use (&$todoList) {
-    if (!$request->name) {
-        $response->setStatus(500);
-        return $next();
+    public function listTodo(Request $request, Response $response, Test $test)
+    {
+        $test->blop();
+        $response
+            ->writeJson((object)self::$todoList)
+            ->end();
     }
 
-    $todoList[] = ["name" => $request->name, "value" => "waiting"];
-    $id = count($todoList)-1;
+    public function getTodo(Request $request, Response $response, $id)
+    {
+        if (!isset(self::$todoList[$id])) {
+            $response
+                ->setStatus(404)
+                ->end();
+            return;
+        }
 
-    $response->writeJson((object)array("id" => $id));
+        $response
+            ->writeJson((object)self::$todoList[$id])
+            ->end();
+    }
+
+    public function createTodo(Request $request, Response $response)
+    {
+        if (!$request->name) {
+            $response
+                ->setStatus(500)
+                ->end();
+            return;
+        }
+
+        self::$todoList[] = ["name" => $request->name, "value" => $request->value ? $request->value : "waiting"];
+        $id = count(self::$todoList)-1;
+
+        $response
+            ->writeJson((object)array("id" => $id))
+            ->end();
+    }
+
+    public function updateTodo(Request $request, Response $response, $id)
+    {
+        if (!isset(self::$todoList[$id]) || (!$request->name && !$request->value)) {
+            $response
+                ->setStatus(500)
+                ->end();
+            return;
+        }
+
+        if ($request->name) {
+            self::$todoList[$id]["name"] = $request->name;
+        }
+
+        if ($request->value) {
+            self::$todoList[$id]["value"] = $request->value;
+        }
+
+        $response
+            ->writeJson((object)self::$todoList[$request->id])
+            ->end();
+    }
+
+    public function deleteTodo(Request $request, Response $response, $id)
+    {
+        if (!isset(self::$todoList[$id])) {
+            $response
+                ->setStatus(500)
+                ->end();
+            return;
+        }
+
+        unset(self::$todoList[$id]);
+        $response
+            ->writeJson((object)['error' => false])
+            ->end();
+    }
+
+    public function afterCreateTodo()
+    {
+        echo "\nTodo " . (count(self::$todoList)-1) . " created";
+    }
+
+    public function afterUpdateTodo(Request $request)
+    {
+        echo "\nTodo ".$request->id." as been modified";
+    }
+}
+
+$server = new CapMousse\ReactRestify\Server("SmallTodoServer", "0.0.0.1");
+
+$server->use(function($next) {
+    print_r("test");
     $next();
-})->after(function($request, $response, $route) use (&$todoList){
-    echo "\nA new todo as been created at id ".(count($todoList)-1);
 });
+
+$server->add(Test::class);
+
+//List all todo
+$server->get('/', 'TodoListController@listTodo');
+
+//Create a new todo
+$server
+    ->post('/', 'TodoListController@createTodo')
+    ->after('TodoListController@afterCreateTodo');
 
 
 $server->group('todo', function($routes) use (&$todoList){
     //Get a single todo
-    $routes->get('{id}', function ($request, $response, $next) use (&$todoList) {
-        if (!isset($todoList[$request->id])) {
-            $response->setStatus(404);
-            return $next();
-        }
-
-        $response->writeJson((object)$todoList[$request->id]);
-        $next();
-    })->where('id', '[0-9]+');
+    $routes
+        ->get('{id}', 'TodoListController@getTodo')
+        ->where('id', '[0-9]+');
 
     //Update a todo
-    $routes->put('{id}', function ($request, $response, $next) use (&$todoList) {
-        if (!isset($todoList[$request->id]) || (!$request->name && !$request->value)) {
-            $response->setStatus(500);
-            $next();
-        }
-
-        if ($request->name) {
-            $todoList[$request->id]["name"] = $request->name;
-        }
-
-        if ($request->value) {
-            $todoList[$request->id]["value"] = $request->value;
-        }
-
-        $response->writeJson((object)$todoList[$request->id]);
-        $next();
-    })->after(function($request, $response, $route){
-        echo "\nTodo ".$request->id." as been modified";
-    });
+    $routes
+        ->put('{id}', 'TodoListController@updateTodo')
+        ->after('TodoListController@afterUpdateTodo');
 
     //Delete a todo
-    $routes->delete('{id}', function ($request, $response, $next) use (&$todoList) {
-        if (!isset($todoList[$request->id])) {
-            $response->setStatus(500);
-            $next();
-        }
+    $routes
+        ->delete('{id}', 'TodoListController@deleteTodo')
+        ->after(function(Request $request, Response $response){
+            echo "\nTodo ".$request->id." as been deleted";
+        });
 
-        unset($todoList[$request->id]);
-        $response->writeJson((object)['error' => false]);
-        $next();
-    })->after(function($request, $response, $route){
-        echo "\nTodo ".$request->id." as been deleted";
-    });
-
-})->after(function($request, $response, $route) use (&$todoList){
+})->after(function(Request $request, Response $response){
     echo "\nTodo access";
-});
-
-$server->on('NotFound', function($request, $response, $next){
-    $response->write('You fail, 404');
-    $response->setStatus(404);
-
-    $next();
 });
 
 $server->listen("1337");

@@ -5,14 +5,22 @@ namespace CapMousse\ReactRestify\Routing;
 use CapMousse\ReactRestify\Evenement\EventEmitter;
 use CapMousse\ReactRestify\Http\Request;
 use CapMousse\ReactRestify\Http\Response;
+use CapMousse\ReactRestify\Traits\WaterfallTrait;
+use CapMousse\ReactRestify\Container\Container;
 
 class Router extends EventEmitter
 {
+    use WaterfallTrait;
     /**
      * The current routes list
      * @var array
      */
-    public $routes = array();
+    public $routes = [];
+
+    /**
+     * @var array
+     */
+    private $middlewares = [];
 
     /**
      * The current asked uri
@@ -26,9 +34,8 @@ class Router extends EventEmitter
      * @param array $routes a route array
      *
      * @throws \InvalidArgumentException
-     * @return Router
      */
-    public function __construct($routes = array())
+    public function __construct($routes = [])
     {
         if (!is_array($routes)) {
             throw new \InvalidArgumentException("Routes must be an array");
@@ -85,6 +92,24 @@ class Router extends EventEmitter
     }
 
     /**
+     * Add a middleware
+     * @param string|Callable $callback
+     */
+    public function addMiddleware($callback)
+    {
+        $this->middlewares[] = function (Callable $next, Request $request, Response $response) use ($callback) {
+            $container = Container::getInstance();
+            $parameters = array_merge([
+                "request"   => $request,
+                "response"  => $response,
+                "next"      => $next
+            ], $request->getData());
+
+            $container->call($callback, $parameters);
+        };
+    }
+
+    /**
      * Launch the route parsing
      *
      * @param \React\Http\Request     $request
@@ -93,7 +118,7 @@ class Router extends EventEmitter
      * @throws \RuntimeException
      * @return Void
      */
-    public function launch(Request $request, Response $response, $next)
+    public function launch(Request $request, Response $response)
     {
         if (count($this->routes) === 0) {
             throw new \RuntimeException("No routes defined");
@@ -105,7 +130,15 @@ class Router extends EventEmitter
             $this->uri = "/";
         }
 
-        $this->matchRoutes($request, $response, $next);
+        $request->on('end', function () use (&$request, &$response) {
+            $this->matchRoutes($request, $response);  
+        });
+
+        $request->on('error', function ($error) use (&$request, &$response) {
+            $this->emit('error', [$request, $response, $error]);
+        });
+
+        $request->parseData();
     }
 
     /**
@@ -118,48 +151,51 @@ class Router extends EventEmitter
      * @throws \RuntimeException
      * @return Void
      */
-    private function matchRoutes(Request $request, Response $response, $next)
+    private function matchRoutes(Request $request, Response $response)
     {
-        $badMethod = false;
+        $stack  = [];
+        $path   = $request->httpRequest->getPath();
+        $method = $request->httpRequest->getMethod();
 
         foreach ($this->routes as $route) {
-            if (!$route->isParsed()) {
-                $route->parse();
+            if (!$route->match($path, $method)) {
+                continue;
             }
 
-            if (preg_match('#'.$route->parsed.'$#', $request->httpRequest->getPath(), $array)) {
-                if ($route->method != strtoupper($request->httpRequest->getMethod())) {
-                    $badMethod = true;
-                    continue;
-                }
+            $methodArgs = $route->getArgs($path);
+            $request->setData($methodArgs);
 
-                $methodArgs = array();
+            $route->on('error', function (...$args) {
+                $this->emit('error', $args);
+            });
 
-                foreach ($array as $name => $value) {
-                    if (!is_int($name)) {
-                      $methodArgs[$name] = $value;
-                    }
-                }
-
-                if (count($methodArgs) > 0) {
-                    $request->setData($methodArgs);
-                }
-
-                $route->on('error', function () {
-                    $this->emit('error', func_get_args());
-                });
-                $route->run($request, $response, $next);
-
-                return;
-            }
+            $stack[] = function (...$params) use ($route) {
+                $route->run(...$params);
+            };
         }
 
-        if ($badMethod) {
-            $this->emit('MethodNotAllowed', array($request, $response, $next));
-
+        if (count($stack) == 0) {
+            $this->emit('NotFound', array($request, $response));
             return;
         }
 
-        $this->emit('NotFound', array($request, $response, $next));
+        $this->runStack($stack, $request, $response);
+    }
+
+    /**
+     * Launch route stack
+     * @param  array    $stack    
+     * @param  Request  $request  
+     * @param  Response $response 
+     * @return void
+     */
+    protected function runStack(array $stack, Request $request, Response $response)
+    {
+        $stack[] = function () use ($response) {
+            $response->end();
+        };
+
+        $finalStack = array_merge($this->middlewares, $stack);
+        $this->waterfall($finalStack, [$request, $response]);
     }
 }

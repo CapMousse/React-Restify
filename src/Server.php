@@ -4,6 +4,7 @@ namespace CapMousse\ReactRestify;
 
 use React\Http\Request as HttpRequest;
 use React\Http\Response as HttpResponse;
+use CapMousse\ReactRestify\Container\Container;
 
 class Server
 {
@@ -20,7 +21,7 @@ class Server
     public $version = null;
 
     /**
-     * @var \React\Restify\Router
+     * @var Routing\Router
      */
     private $router;
 
@@ -51,31 +52,21 @@ class Server
     /**
      * Parse request from user
      *
-     * @param \React\Http\Request  $HttpRequest
-     * @param \React\Http\Response $HttpResponse
+     * @param \React\Http\Request  $httpRequest
+     * @param \React\Http\Response $httpResponse
      */
     public function __invoke(HttpRequest $httpRequest, HttpResponse $httpResponse)
     {
-        $start = microtime(true);
-
         $request = new Http\Request($httpRequest);
         $response = new Http\Response($httpResponse, $this->name, $this->version);
 
         try {
-            $this->router->launch($request, $response, function() use ($request, $response, $start) {
-                $end = microtime(true) - $start;
-
-                $response->addHeader("X-Response-Time", $end);
-                $response->addHeader("Date", date(DATE_RFC822));
-                $response->addHeader("Access-Control-Request-Method", "POST, GET, PUT, DEL");
-                $response->addHeader("Access-Control-Allow-Origin", $this->allowOrigin);
-
-                $response->end();
-            });
+            $this->router->launch($request, $response);
         } catch (\Exception $e) {
-            $response->write($e->getMessage());
-            $response->setStatus(500);
-            $response->end();
+            $response
+                ->setStatus(500)
+                ->write($e->getMessage())
+                ->end();
         }
     }
 
@@ -108,33 +99,26 @@ class Server
      */
     private function initEvents()
     {
-        $this->router->on('NotFound', function($request, $response, $next) {
-            $response->write('Not found');
-            $response->setStatus(404);
-
-            $next();
+        $this->router->on('NotFound', function($request, $response) {
+            $response
+                ->setStatus(404)
+                ->write('Not found')
+                ->end();
         });
 
-        $this->router->on('MethodNotAllowed', function($request, $response, $next) {
-            $response->write('Method Not Allowed');
-            $response->setStatus(405);
-
-            $next();
-        });
-
-        $this->router->on('error', function ($request, $response, $error, $next) {
-            $response->write($error);
-            $response->write("\n".$request->getContent());
-            $response->setStatus(500);
-
-            $next();
+        $this->router->on('error', function ($request, $response, $error) {
+            $response
+                ->reset()
+                ->setStatus(500)
+                ->write($error)
+                ->end();
         });
     }
 
     /**
      * Manual router event manager
-     * @param String   $event
-     * @param Callable $callback
+     * @param String          $event
+     * @param Callable|string $callback
      */
     public function on($event, $callback)
     {
@@ -154,6 +138,27 @@ class Server
         $runner->listen($port, $host);
 
         return $this;
+    }
+
+    /**
+     * Server middleware
+     * @param  Callable|string $callback
+     */
+    public function use($callback)
+    {
+        return $this->router->addMiddleware($callback);
+    }
+
+    /**
+     * Add item to the container
+     * @param string $alias
+     * @param string|null $concrete
+     * @return void
+     */
+    public function add($alias, $concrete = null)
+    {
+        $container = Container::getInstance();
+        $container->add($alias, $concrete);
     }
 
     /**

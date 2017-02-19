@@ -3,14 +3,14 @@
 namespace CapMousse\ReactRestify\Http;
 
 use React\Http\Request as ReactHttpRequest;
-use Evenement\EventEmitter;
+use CapMousse\ReactRestify\Evenement\EventEmitter;
 
 class Request extends EventEmitter
 {
-    /** @var React\Http\Request */
+    /** @var \React\Http\Request */
     public $httpRequest;
 
-    /** @var mixed */
+    /** @var string */
     private $content;
 
     /** @var array */
@@ -26,7 +26,7 @@ class Request extends EventEmitter
 
     /**
      * Set the raw data of the request
-     * @param mixed $content
+     * @param string $content
      */
     public function setContent($content)
     {
@@ -35,13 +35,17 @@ class Request extends EventEmitter
 
     /**
      * Set the raw data of the request
-     * @param mixed $content
+     * @return string
      */
     public function getContent()
     {
         return $this->content;
     }
 
+    /**
+     * Get formated headers
+     * @return array
+     */
     public function getHeaders()
     {
         $headers = array_change_key_case($this->httpRequest->getHeaders(), CASE_LOWER);
@@ -50,6 +54,94 @@ class Request extends EventEmitter
         }, $headers);
 
         return $headers;
+    }
+
+    /**
+     * Parse request data
+     * @return void
+     */
+    public function parseData()
+    {
+        $headers = $this->getHeaders();
+
+        if (!in_array($this->httpRequest->getMethod(), ['PUT', 'POST'])) {
+            return $this->emit('end');
+        }
+
+        $this->httpRequest->on('data', function($data) use ($headers, &$dataResult) {
+            $dataResult .= $data;
+
+            if (isset($headers["Content-Length"])) {
+                if (strlen($dataResult) == $headers["Content-Length"]) {
+                    $this->httpRequest->close();
+                }
+            } else {
+                $this->httpRequest->close();
+            }
+        });
+
+        $this->httpRequest->on('end', function() use (&$dataResult) {
+            $this->onEnd($dataResult);
+        });
+    }
+
+    /**
+     * On request end
+     * @param  string $dataResult
+     * @return void
+     */
+    private function onEnd($dataResult)
+    {
+        if ($dataResult === null) return $this->emit('end');
+
+        if ($this->isJson()) $this->parseJson($dataResult);
+        else $this->parseStr($dataResult);
+    }
+
+    /**
+     * Parse querystring
+     * @param  string $dataString
+     * @return void
+     */
+    private function parseStr($dataString)
+    {
+        $data = [];
+        parse_str($dataString, $data);
+
+        $this->setContent($dataString);
+        if(is_array($data)) $this->setData($data);
+
+        $this->emit('end');
+    }
+
+    /**
+     * Parse json string
+     * @param  string $jsonString
+     * @return void
+     */
+    private function parseJson($jsonString)
+    {
+        $jsonData = json_decode($jsonString, true);
+
+        if ($jsonData === null) {
+            $this->emit('error', [json_last_error_msg()]);
+            return;
+        }
+
+        $this->setContent($jsonString);
+        $this->setData($jsonData);
+        $this->emit('end');
+    }
+
+    /**
+     * Check if current request is a json request
+     * @return boolean
+     */
+    public function isJson()
+    {
+        $headers = $this->getHeaders();
+
+        return isset($headers['content-type']) && $headers['content-type'] == 'application/json';
     }
 
     /**
@@ -69,6 +161,7 @@ class Request extends EventEmitter
     {
         return $this->data;
     }
+
     public function __get($name)
     {
         return isset($this->data[$name]) ? $this->data[$name] : false;
