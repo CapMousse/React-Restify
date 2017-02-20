@@ -18,10 +18,10 @@ class Runner
     public function listen($port, $host = '127.0.0.1')
     {
         $loop = Factory::create();
-        $this->register($loop);
+        $this->register($loop, $port, $host);
         $loop->run();
     }
-    
+
     public function register($loop, $port, $host = '127.0.0.1')
     {
         $socket = new SocketServer($loop);
