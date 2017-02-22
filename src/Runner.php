@@ -5,6 +5,7 @@ namespace CapMousse\ReactRestify;
 use React\EventLoop\Factory;
 use React\EventLoop\LoopInterface;
 use React\Socket\Server as SocketServer;
+use React\Socket\SecureServer as SecureSocketServer;
 use React\Http\Server as HttpServer;
 
 class Runner
@@ -23,11 +24,12 @@ class Runner
      * Listen to host:port
      * @param  string $port
      * @param  string $host
+     * @param  array  $cert
      */
-    public function listen($port, $host = '127.0.0.1')
+    public function listen($port, $host = '127.0.0.1', array $cert = [])
     {
         $loop = Factory::create();
-        $this->register($loop, $port, $host);
+        $this->register($loop, $port, $host, $cert);
         $loop->run();
     }
 
@@ -36,15 +38,20 @@ class Runner
      * @param  LoopInterface $loop
      * @param  string $port
      * @param  string $host
+     * @param  array  $cert
      */
-    public function register(LoopInterface $loop, $port, $host = '127.0.0.1')
+    public function register(LoopInterface $loop, $port, $host = '127.0.0.1', array $cert = [])
     {
-        $socket = new SocketServer($loop);
+        $socket = new SocketServer("{$host}:{$port}", $loop);
+
+        if (count($cert) > 0) {
+            $socket = new SecureSocketServer($socket, $loop, $cert);
+        }
+
         $http = new HttpServer($socket);
-
         $http->on('request', $this->app);
+        
         echo("Server running on {$host}:{$port}\n");
-
-        $socket->listen($port, $host);
+        $loop->run();
     }
 }

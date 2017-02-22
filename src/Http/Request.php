@@ -49,9 +49,12 @@ class Request extends EventEmitter
     public function getHeaders()
     {
         $headers = array_change_key_case($this->httpRequest->getHeaders(), CASE_LOWER);
-        $headers = array_map(function ($value) {
-            return strtolower($value);
-        }, $headers);
+
+        foreach ($headers as $header) {
+            $header = array_map(function ($value) {
+                return strtolower($value);
+            }, $header);
+        }
 
         return $headers;
     }
@@ -71,8 +74,8 @@ class Request extends EventEmitter
         $this->httpRequest->on('data', function($data) use ($headers, &$dataResult) {
             $dataResult .= $data;
 
-            if (isset($headers["Content-Length"])) {
-                if (strlen($dataResult) == $headers["Content-Length"]) {
+            if (isset($headers["content-length"])) {
+                if (strlen($dataResult) == $headers["content-length"][0]) {
                     $this->httpRequest->close();
                 }
             } else {
@@ -141,7 +144,7 @@ class Request extends EventEmitter
     {
         $headers = $this->getHeaders();
 
-        return isset($headers['content-type']) && $headers['content-type'] == 'application/json';
+        return isset($headers['content-type']) && $headers['content-type'][0] == 'application/json';
     }
 
     /**
