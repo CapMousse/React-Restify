@@ -2,13 +2,11 @@
 
 namespace CapMousse\ReactRestify\Container;
 
-use ReflectionClass;
-use ReflectionMethod;
-use ReflectionFunction;
-use ReflectionFunctionAbstract;
-use ReflectionParameter;
+use Psr\Container\ContainerInterface;
+use CapMousse\ReactRestify\Errors\Container\ContainerException;
+use CapMousse\ReactRestify\Errors\Container\NotFoundException;
 
-class Container
+class Container implements ContainerInterface
 {
     private static $instance;
 
@@ -34,26 +32,38 @@ class Container
 
     /**
      * Add item to the container
-     * @param string $alias
+     * @param string $id
      * @param mixed|null $concrete
      */
-    public function add($alias, $concrete = null)
+    public function add($id, $concrete = null)
     {
-        if (isset($this->definitions[$alias])) return;
+        if (!is_string($id)) {
+            throw new ContainerException('$id must be a string');
+        }
 
-        if (is_null($concrete)) $concrete = $alias;
+        if (isset($this->definitions[$id])) {
+            return;
+        }
 
-        $this->definitions[$alias] = $this->build($concrete);
+        if (is_null($concrete)) {
+            $concrete = $id;
+        }
+
+        $this->definitions[$id] = $this->build($concrete);
     }
 
     /**
      * Check if item is available in container
-     * @param  string  $alias
+     * @param  string  $id
      * @return boolean
      */
-    public function has($alias)
+    public function has($id)
     {
-        if (array_key_exists($alias, $this->definitions)) {
+        if (!is_string($id)) {
+            throw new ContainerException('$id must be a string');
+        }
+
+        if (array_key_exists($id, $this->definitions)) {
             return true;
         }
 
@@ -62,12 +72,21 @@ class Container
 
     /**
      * Get an item of the container
-     * @param  string $alias
+     * @param  string $id
      * @return mixed
+     * @throw  NotFoundException
      */
-    public function get($alias)
+    public function get($id)
     {
-        return $this->definitions[$alias];
+        if (!is_string($id)) {
+            throw new ContainerException('$id must be a string');
+        }
+
+        if (!isset($this->definitions[$id])) {
+            throw new NotFoundException("Unresolvable ".$id);
+        }
+
+        return $this->definitions[$id];
     }
 
     /**
@@ -106,10 +125,10 @@ class Container
     public function getActionReflection($method, $class = null)
     {
         if(!is_null($class)) {
-            return new ReflectionMethod($class, $method);
+            return new \ReflectionMethod($class, $method);
         }
 
-        return new ReflectionFunction($method);
+        return new \ReflectionFunction($method);
     }
 
     /**
@@ -131,11 +150,11 @@ class Container
 
     /**
      * Get reflection parameters
-     * @param  ReflectionFunctionAbstract $reflection
-     * @param  array                      $args
+     * @param  \ReflectionFunctionAbstract $reflection
+     * @param  array                       $args
      * @return array
      */
-    public function getParameters(ReflectionFunctionAbstract $reflection, array $args = [])
+    public function getParameters(\ReflectionFunctionAbstract $reflection, array $args = [])
     {
         $dependencies = $reflection->getParameters();
         $parameters = [];
@@ -149,11 +168,11 @@ class Container
 
     /**
      * Get paremeter value
-     * @param  ReflectionParameter $parameter 
-     * @param  array               $args      
+     * @param  \ReflectionParameter $parameter 
+     * @param  array                $args      
      * @return mixed
      */
-    public function getParameter(ReflectionParameter $parameter, array $args = [])
+    public function getParameter(\ReflectionParameter $parameter, array $args = [])
     {
         $class = $parameter->getClass();
 
@@ -169,7 +188,7 @@ class Container
             return $args[$parameter->name];
         }
 
-        return null;
+        throw new NotFoundException("Unresolvable " . ($class ? $class->name : $parameter->name));
     }
 
     /**
@@ -179,7 +198,7 @@ class Container
      */
     public function build ($class)
     {
-        $reflection = new ReflectionClass($class);
+        $reflection = new \ReflectionClass($class);
         $parameters = [];
 
         if (!is_null($reflection->getConstructor())) {
