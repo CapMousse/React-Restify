@@ -12,11 +12,16 @@
         }
     ],
     "require"       : {
-        "react/http":  "0.5.*"
+        "php": "^7.0",
+        "react/http":  "0.5.*",
+        "psr/container": "^1.0"
     },
     "autoload"      : {
         "psr-4": {
             "CapMousse\\ReactRestify\\"       : "src"
         }
+    },
+    "require-dev": {
+        "atoum/atoum": "^3.0"
     }
 }

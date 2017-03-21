@@ -3,7 +3,7 @@
 
 > RESTful api made easy for [ReactPHP](http://nodephp.org/), seriously.
 
-##Instalation
+## Instalation
 Via composer
 
 ``` bash
@@ -11,7 +11,7 @@ Via composer
 ```
 
 
-##Create server
+## Create server
 
 Here is an exemple of a simple HTTP server replying to all get call like `http://127.0.0.1:1337/hello/you`
 
@@ -20,8 +20,7 @@ require 'vendor/autoload.php';
 
 $server = new CapMousse\ReactRestify\Server("MyAPP", "0.0.0.1");
 
-// Middleware
-$server->use(function ($request, $next) {
+$server->middleware(function ($request, $next) {
 	print_r($request->getMethod());
 	$next();
 });
@@ -86,6 +85,6 @@ $server->get('/', 'FooBar@baz');
 
 Next part will be to support Sockets, Upgrade Requests... to create a real time API server.
 
-##Licence
+## Licence
 
 MIT, see LICENCE file
