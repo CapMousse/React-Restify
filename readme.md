@@ -20,7 +20,8 @@ require 'vendor/autoload.php';
 
 $server = new CapMousse\ReactRestify\Server("MyAPP", "0.0.0.1");
 
-$server->middleware(function ($request, $next) {
+// Middleware
+$server->use(function ($request, $next) {
 	print_r($request->getMethod());
 	$next();
 });
