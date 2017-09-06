@@ -57,7 +57,7 @@ class Route extends EventEmitter
     /**
      * Create a new filter for current route
      *
-     * @param String $param  parameter to filter
+     * @param String|array $param  parameter to filter
      * @param String $filter regexp to execute
      *
      * @return void
