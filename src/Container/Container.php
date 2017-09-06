@@ -91,7 +91,7 @@ class Container implements ContainerInterface
 
     /**
      * Call method with given parameters
-     * @param  string|callable  $action
+     * @param  string|array|callable  $action
      * @param  array            $args
      * @return mixed
      */
@@ -103,6 +103,17 @@ class Container implements ContainerInterface
         if (is_string($action)) {
             list($class, $method) = explode('@', $action);
         }
+        elseif (is_array($action)) {
+            list($class, $method) = $action; 
+
+            if (!is_object($class)) {
+                throw new ContainerException('$class must be an object');
+            }
+
+            if (!is_string($method)) {
+                throw new ContainerException('$action must be a string');
+            }
+        }
 
         $reflection = $this->getActionReflection($method, $class);
         $args       = $this->getParametersDictionary($args);
@@ -112,7 +123,10 @@ class Container implements ContainerInterface
             return $method(...$parameters);
         }
 
-        $class = $this->build($class);
+        if(!is_object($class)) {
+            $class = $this->build($class);
+        }
+
         return $class->{$method}(...$parameters);
     }
 
