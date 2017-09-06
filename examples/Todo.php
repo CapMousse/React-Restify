@@ -121,7 +121,7 @@ $server
     ->after('TodoListController@afterCreateTodo');
 
 
-$server->group('todo', function($routes) use (&$todoList){
+$server->group('todo', function ($routes) {
     //Get a single todo
     $routes
         ->get('{id}', 'TodoListController@getTodo')

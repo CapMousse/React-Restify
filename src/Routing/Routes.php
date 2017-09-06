@@ -83,8 +83,6 @@ class Routes extends EventEmitter
      */
     public function __call($name, $arguments)
     {
-        $arguments =  array_merge([$name], $arguments);
-
-        return call_user_func_array(array($this, 'addRoute'), $arguments);
+        return $this->addRoute($name, ...$arguments);
     }
 }
