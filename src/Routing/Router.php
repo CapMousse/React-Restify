@@ -82,7 +82,7 @@ class Router extends EventEmitter
      *
      * @param String $prefix prefix of thes routes
      *
-     * @return \CapMousse\ReactRestify\Routing\Group
+     * @return \CapMousse\ReactRestify\Routing\Routes
      */
     public function addGroup($prefix, $callback)
     {
@@ -113,7 +113,7 @@ class Router extends EventEmitter
      * Launch the route parsing
      *
      * @param \React\Http\Request     $request
-     * @param \React\Restify\Response $response
+     * @param \React\Http\Response $response
      *
      * @throws \RuntimeException
      * @return Void
@@ -146,7 +146,7 @@ class Router extends EventEmitter
      *
      *
      * @param \React\Http\Request     $request
-     * @param \React\Restify\Response $response
+     * @param \React\Http\Response $response
      *
      * @throws \RuntimeException
      * @return Void

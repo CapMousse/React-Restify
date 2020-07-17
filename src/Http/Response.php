@@ -98,7 +98,7 @@ class Response
     /**
      * Write a HTTP 100 (continue) header
      * 
-     * @return Reponse
+     * @return Response
      */
     public function writeContinue()
     {
@@ -111,7 +111,7 @@ class Response
      * Write data to the response
      *
      * @param string $data
-     * @return Reponse
+     * @return Response
      */
     public function write($data)
     {
@@ -125,7 +125,7 @@ class Response
      * Write json to the response
      *
      * @param mixed $data
-     * @return Reponse
+     * @return Response
      */
     public function writeJson($data)
     {
@@ -140,7 +140,7 @@ class Response
     /**
      * Empty current response
      * 
-     * @return Reponse
+     * @return Response
      */
     public function reset()
     {

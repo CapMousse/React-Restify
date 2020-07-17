@@ -2,10 +2,10 @@
 
 namespace CapMousse\ReactRestify\Routing;
 
+use CapMousse\ReactRestify\Container\Container;
 use CapMousse\ReactRestify\Evenement\EventEmitter;
 use CapMousse\ReactRestify\Http\Request;
 use CapMousse\ReactRestify\Http\Response;
-use CapMousse\ReactRestify\Container\Container;
 use CapMousse\ReactRestify\Traits\EventTrait;
 
 class Route extends EventEmitter
@@ -141,9 +141,9 @@ class Route extends EventEmitter
     /**
      * Run the current route
      *
-     * @param Callable                $next
-     * @param \React\Http\Request     $request
-     * @param \React\Restify\Response $response
+     * @param Callable             $next
+     * @param \React\Http\Request  $request
+     * @param \React\Http\Response $response
      *
      * @return Void
      */
